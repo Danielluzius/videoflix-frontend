@@ -1,0 +1,23 @@
+<header class="main_header w_full">
+  <a aria-label="main page" routerLink="/">
+    <img src="/assets/icons/logo_icon_small.svg" alt="Videoflix Logo Small">
+    <img src="/assets/icons/logo_icon.svg" alt="Videoflix Logo">
+  </a>
+  <div class="d_flex_cc_gm head_content_right">
+    @if (showLoginBtn()) {
+      <a aria-label="login page" routerLink="/auth/login" class="std_btn btn_prime pad_s d_flex_cc_gs">
+        Log in
+      </a>
+    }
+    @if (showSignUpBtn()) {
+      <a aria-label="register page" routerLink="/auth/register" class="std_btn btn_prime pad_s d_flex_cc_gs">
+        Sign up
+      </a>
+    }
+    @if (showLogoutBtn()) {
+      <a aria-label="logout" (click)="logout()" class="std_btn btn_prime pad_s d_flex_cc_gs" style="cursor:pointer">
+        Logout
+      </a>
+    }
+  </div>
+</header>
