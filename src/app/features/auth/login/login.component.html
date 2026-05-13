@@ -1,0 +1,38 @@
+<main class="w_full d_flex_cc_gl">
+  <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="std_form_small d_flex_cs_gl f_d_c w_full">
+    <h1 class="font_prime_color d_flex_cs_gl w_full">Log in</h1>
+
+    <div [attr.error]="emailError ? 'true' : 'false'" id="email_group" class="form_group_w_icon_wo_label w_full">
+      <img src="/assets/icons/mail.png" alt="Icon">
+      <input (blur)="validateEmail(emailInput.value)" #emailInput type="text" name="email" id="email" required
+             autocomplete="username" ngModel>
+      <label for="email">Email</label>
+      <p class="error_label">Please enter a valid email address.</p>
+    </div>
+
+    <div [attr.error]="passwordError ? 'true' : 'false'" id="password_group" class="form_group_w_icon_wo_label w_full">
+      <img src="/assets/icons/password.png" alt="Icon">
+      <input (blur)="validateLoginPW(passwordInput.value)" #passwordInput type="password" name="password" id="password"
+             required autocomplete="new-password" ngModel>
+      <label for="password">Password</label>
+      <img (click)="togglePassword(passwordInput)" class="password_eye" src="/assets/icons/visibility.svg" alt="">
+      <p class="error_label">Password is required.</p>
+    </div>
+
+    <p id="error_login" [attr.error]="loginError ? 'true' : 'false'" class="login_error">Wrong user or password !</p>
+
+    <div class="d_flex_cc_gl f_d_c w_full">
+      <button type="submit" class="std_btn btn_prime pad_s d_flex_cc_gs">Log in</button>
+      <a aria-label="forgot password page" routerLink="/auth/forgot-password" class="link link_prime fontw_bold">
+        Forgot password?
+      </a>
+    </div>
+
+    <div class="d_flex_cc_gl f_d_r_resp_c w_full">
+      <p class="font_prime_color">New to Videoflix?</p>
+      <a aria-label="register page" routerLink="/auth/register" class="link link_prime d_flex_cc_gm fontw_bold">
+        Sign Up now!
+      </a>
+    </div>
+  </form>
+</main>

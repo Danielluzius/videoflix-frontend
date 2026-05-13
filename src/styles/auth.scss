@@ -1,0 +1,37 @@
+.login_error {
+  color: var(--form-input-error-border-color);
+  font-size: 16px !important;
+  display: block;
+  height: 20px;
+  line-height: 20px;
+  margin: 4px 0;
+  color: transparent;
+  transition: color 0.3s ease;
+}
+
+.login_error[error="true"] {
+  color: var(--form-input-error-border-color);
+}
+
+.activation-success-text {
+  color: #4CAF50 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--gap-l) !important;
+}
+
+.activation-error-text {
+  color: #f44336 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--gap-l) !important;
+}
+
+@media (max-width: 768px) {
+  .activation-success-text,
+  .activation-error-text {
+    font-size: 20px;
+  }
+}

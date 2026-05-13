@@ -1,0 +1,32 @@
+<main class="w_full d_flex_cc_gl">
+  <div class="std_form d_flex_cs_gl f_d_c">
+    <div id="activation_content" class="d_flex_cs_gl f_d_c w_full">
+
+      @if (status === 'processing') {
+        <h1 class="font_prime_color d_flex_cs_gl w_full">Activating Account...</h1>
+        <div class="d_flex_cc_gl">
+          <div class="spinner"></div>
+        </div>
+      }
+
+      @if (status === 'success') {
+        <h1 class="activation-success-text d_flex_cs_gl w_full">
+          <img src="/assets/icons/check_circle.svg" alt="Success" width="28" height="28">
+          Success!
+        </h1>
+        <p class="text_a_c font_prime_color">{{ message }}</p>
+        <p class="text_a_c font_prime_color">Redirecting to login...</p>
+      }
+
+      @if (status === 'error') {
+        <h1 class="activation-error-text d_flex_cs_gl w_full">
+          <img src="/assets/icons/error.svg" alt="Error" width="28" height="28">
+          Error
+        </h1>
+        <p class="text_a_c font_prime_color">{{ message }}</p>
+        <p class="text_a_c font_prime_color">Redirecting to login...</p>
+      }
+
+    </div>
+  </div>
+</main>

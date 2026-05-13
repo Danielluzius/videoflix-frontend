@@ -4,6 +4,8 @@ import { filter } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +17,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class HeaderComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private toast = inject(ToastService);
 
   private currentUrl = toSignal(
     this.router.events.pipe(
@@ -45,6 +48,22 @@ export class HeaderComponent {
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe((response) => {
+      if (response.status === 'error') {
+        this.toast.showToastAndRedirect(
+          true,
+          ['Logout error, redirecting...'],
+          '/auth/login',
+          environment.toastDuration,
+        );
+      } else {
+        this.toast.showToastAndRedirect(
+          false,
+          ['Successfully logged out!'],
+          '/auth/login',
+          environment.toastDuration,
+        );
+      }
+    });
   }
 }
