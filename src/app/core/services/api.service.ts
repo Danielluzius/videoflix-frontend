@@ -1,5 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpResponse,
+} from '@angular/common/http';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -14,9 +18,14 @@ export interface ApiResponse<T = unknown> {
 export class ApiService {
   private http = inject(HttpClient);
 
-  post<T = unknown>(endpoint: string, data: unknown): Observable<ApiResponse<T>> {
+  post<T = unknown>(
+    endpoint: string,
+    data: unknown,
+  ): Observable<ApiResponse<T>> {
     return this.http
-      .post<T>(`${environment.apiBaseUrl}${endpoint}`, data, { observe: 'response' })
+      .post<T>(`${environment.apiBaseUrl}${endpoint}`, data, {
+        observe: 'response',
+      })
       .pipe(
         map((response: HttpResponse<T>) => ({
           ok: response.ok,
@@ -37,7 +46,7 @@ export class ApiService {
             status: error.status,
             data: error.error as T,
           });
-        })
+        }),
       );
   }
 
@@ -64,7 +73,7 @@ export class ApiService {
             status: error.status,
             data: error.error as T,
           });
-        })
+        }),
       );
   }
 

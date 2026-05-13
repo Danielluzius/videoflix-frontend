@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgFor } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { ToastService, ToastItem } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [NgFor],
+  imports: [],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',
 })

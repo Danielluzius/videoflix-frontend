@@ -24,7 +24,7 @@ export class ToastService {
     error: boolean = true,
     msg: string[] = [],
     redirectUrl: string | null = null,
-    delay: number = environment.toastDuration
+    delay: number = environment.toastDuration,
   ): void {
     this.showToastMessage(error, msg);
     if (redirectUrl) {

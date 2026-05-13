@@ -21,7 +21,7 @@ export class AuthService {
           false,
           ['Login successful!'],
           '/videos',
-          environment.toastDuration
+          environment.toastDuration,
         );
       }
     });
@@ -38,7 +38,7 @@ export class AuthService {
           false,
           ['Registration successful! Please check your email.'],
           '/auth/login',
-          environment.toastDuration
+          environment.toastDuration,
         );
       }
     });
@@ -52,14 +52,14 @@ export class AuthService {
           true,
           ['Logout error, redirecting...'],
           '/auth/login',
-          environment.toastDuration
+          environment.toastDuration,
         );
       } else {
         this.toast.showToastAndRedirect(
           false,
           ['Successfully logged out!'],
           '/auth/login',
-          environment.toastDuration
+          environment.toastDuration,
         );
       }
     });
@@ -75,7 +75,7 @@ export class AuthService {
           false,
           ['Password reset email sent! Please check your inbox.'],
           '/auth/login',
-          environment.toastDuration
+          environment.toastDuration,
         );
       }
     });
@@ -84,21 +84,23 @@ export class AuthService {
   confirmPassword(
     uid: string,
     token: string,
-    data: { new_password: string; confirm_password: string }
+    data: { new_password: string; confirm_password: string },
   ): void {
-    this.api.post(`password_confirm/${uid}/${token}/`, data).subscribe((response) => {
-      if (response.ok) {
-        this.toast.showToastAndRedirect(
-          false,
-          ['Password successfully reset!'],
-          '/auth/login',
-          environment.toastDuration
-        );
-      } else {
-        const errorMessages = this.toast.extractErrorMessages(response.data);
-        this.toast.showToastMessage(true, errorMessages);
-      }
-    });
+    this.api
+      .post(`password_confirm/${uid}/${token}/`, data)
+      .subscribe((response) => {
+        if (response.ok) {
+          this.toast.showToastAndRedirect(
+            false,
+            ['Password successfully reset!'],
+            '/auth/login',
+            environment.toastDuration,
+          );
+        } else {
+          const errorMessages = this.toast.extractErrorMessages(response.data);
+          this.toast.showToastMessage(true, errorMessages);
+        }
+      });
   }
 
   startTokenRefreshInterval(): void {

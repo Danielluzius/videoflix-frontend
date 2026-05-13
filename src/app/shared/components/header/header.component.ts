@@ -19,14 +19,19 @@ export class HeaderComponent {
   private currentUrl = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
-      map((e) => (e as NavigationEnd).urlAfterRedirects)
+      map((e) => (e as NavigationEnd).urlAfterRedirects),
     ),
-    { initialValue: this.router.url }
+    { initialValue: this.router.url },
   );
 
   showLoginBtn(): boolean {
     const url = this.currentUrl();
-    return url === '/auth/register' || url === '/auth/forgot-password' || url === '/';
+    return (
+      url === '/auth/register' ||
+      url === '/auth/forgot-password' ||
+      url === '/auth/confirm-password' ||
+      url === '/'
+    );
   }
 
   showSignUpBtn(): boolean {
