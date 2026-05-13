@@ -30,13 +30,24 @@
   color: var(--font-prime-color);
 }
 
-textarea { height: 200px; resize: none; }
+textarea {
+  height: 200px;
+  resize: none;
+}
 
 .form_group_w_icon_wo_label > img,
-.password_eye { width: 20px; height: 20px; }
+.password_eye {
+  width: 20px;
+  height: 20px;
+}
 
-.form_group_w_icon_wo_label { position: relative; margin-top: 16px; }
-.password_eye { cursor: pointer; }
+.form_group_w_icon_wo_label {
+  position: relative;
+  margin-top: 16px;
+}
+.password_eye {
+  cursor: pointer;
+}
 
 .form_group_w_icon_wo_label input {
   border: none;
@@ -61,7 +72,7 @@ textarea { height: 200px; resize: none; }
   display: inline-block;
   width: 16px;
   height: 16px;
-  background-image: url('/assets/img/warning.png');
+  background-image: url("/assets/img/warning.png");
   background-size: contain;
   background-repeat: no-repeat;
   flex-shrink: 0;
@@ -94,9 +105,14 @@ textarea { height: 200px; resize: none; }
   margin-top: 4px;
 }
 
-.form_group_w_icon_wo_label[error="true"] .error_label { display: flex; }
+.form_group_w_icon_wo_label[error="true"] .error_label {
+  display: flex;
+}
 
-.form_group_wo_icon_w_label .error_label { color: transparent; display: block; }
+.form_group_wo_icon_w_label .error_label {
+  color: transparent;
+  display: block;
+}
 
 .form_group_w_icon_wo_label[error="true"],
 .form_group_wo_icon_w_label[error="true"] > input {
@@ -109,19 +125,36 @@ textarea { height: 200px; resize: none; }
 }
 
 @media screen and (max-width: 768px) {
-  .form_group_w_icon_wo_label[error="true"] { margin-bottom: 20px; font-size: 16px; }
-  .form_group_checkbox .error_label { margin-top: 6px; gap: 6px; }
+  .form_group_w_icon_wo_label[error="true"] {
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  .form_group_checkbox .error_label {
+    margin-top: 6px;
+    gap: 6px;
+  }
   .form_group_checkbox[error="true"] .error_label::before,
   .form_group_w_icon_wo_label[error="true"] .error_label::before,
-  .form_group_wo_icon_w_label[error="true"] .error_label::before { width: 14px; height: 14px; }
+  .form_group_wo_icon_w_label[error="true"] .error_label::before {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 @media screen and (max-width: 480px) {
-  .form_group_w_icon_wo_label[error="true"] { margin-bottom: 24px; }
-  .form_group_checkbox .error_label { gap: 4px; font-size: 16px !important; }
+  .form_group_w_icon_wo_label[error="true"] {
+    margin-bottom: 24px;
+  }
+  .form_group_checkbox .error_label {
+    gap: 4px;
+    font-size: 16px !important;
+  }
   .form_group_checkbox[error="true"] .error_label::before,
   .form_group_w_icon_wo_label[error="true"] .error_label::before,
-  .form_group_wo_icon_w_label[error="true"] .error_label::before { width: 12px; height: 12px; }
+  .form_group_wo_icon_w_label[error="true"] .error_label::before {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 .form_group_wo_icon_w_label > label {
@@ -130,7 +163,10 @@ textarea { height: 200px; resize: none; }
   font-size: 16px;
 }
 
-.label_required::after { content: " *"; color: var(--form-input-error-border-color); }
+.label_required::after {
+  content: " *";
+  color: var(--form-input-error-border-color);
+}
 
 .form_group_w_icon_wo_label label {
   position: absolute;
@@ -144,7 +180,9 @@ textarea { height: 200px; resize: none; }
   pointer-events: none;
 }
 
-.form_group_invite label { left: 20px; }
+.form_group_invite label {
+  left: 20px;
+}
 
 .form_group_w_icon_wo_label input:focus + label,
 .form_group_w_icon_wo_label input:valid + label {
@@ -155,12 +193,18 @@ textarea { height: 200px; resize: none; }
 
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
-  transition: background-color 600000s 0s, color 600000s 0s;
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
 }
 
-input[data-autocompleted] { background-color: transparent !important; }
+input[data-autocompleted] {
+  background-color: transparent !important;
+}
 
-.custom_checkbox input { display: none; }
+.custom_checkbox input {
+  display: none;
+}
 
 .custom_checkbox {
   display: flex;
@@ -200,7 +244,14 @@ input[data-autocompleted] { background-color: transparent !important; }
   border-color: var(--btn-prime-color);
 }
 
-.custom_checkbox input:checked + .checkbox_icon::after { display: block; }
+.custom_checkbox input:checked + .checkbox_icon::after {
+  display: block;
+}
 
-.custom_checkbox a { color: var(--link-color); text-decoration: underline; }
-.custom_checkbox a:hover { text-decoration: none; }
+.custom_checkbox a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+.custom_checkbox a:hover {
+  text-decoration: none;
+}

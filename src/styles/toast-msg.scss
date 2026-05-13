@@ -11,15 +11,23 @@
   transform: translateX(-100%);
   animation: slideInFromLeft 0.25s ease-out forwards;
   z-index: 11;
-  background: #2E3EDF;
+  background: #2e3edf;
   color: white;
 }
 
-.toast_msg[hint="true"] { background: #ffc107; }
+.toast_msg[hint="true"] {
+  background: #ffc107;
+}
 
 @keyframes slideInFromLeft {
-  0% { opacity: 0; transform: translateX(-100%); }
-  100% { opacity: 1; transform: translateX(0); }
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .toast_msg_left {
@@ -31,21 +39,46 @@
   justify-content: center;
 }
 
-.toast_msg_left img { flex-shrink: 0; width: 24px; height: 24px; }
-
-@media screen and (max-width: 500px) {
-  .toast_msg_left { width: 16px; padding: 4px; }
-  .toast_msg_left img { width: 16px; height: 16px; }
-  .toast_msg { min-width: 0px; margin-right: 16px; }
+.toast_msg_left img {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
 }
 
-.toast_msg[error="true"] .toast_msg_left { background: rgba(255, 0, 0, 1); }
-.toast_msg[error="false"] .toast_msg_left { background: rgba(0, 207, 124, 1); }
+@media screen and (max-width: 500px) {
+  .toast_msg_left {
+    width: 16px;
+    padding: 4px;
+  }
+  .toast_msg_left img {
+    width: 16px;
+    height: 16px;
+  }
+  .toast_msg {
+    min-width: 0px;
+    margin-right: 16px;
+  }
+}
 
-.toast_msg[error="true"] img[error="false"] { display: none; }
-.toast_msg[error="false"] img[error="true"] { display: none; }
-.toast_msg[error="true"] h3[error="false"] { display: none; }
-.toast_msg[error="false"] h3[error="true"] { display: none; }
+.toast_msg[error="true"] .toast_msg_left {
+  background: rgba(255, 0, 0, 1);
+}
+.toast_msg[error="false"] .toast_msg_left {
+  background: rgba(0, 207, 124, 1);
+}
+
+.toast_msg[error="true"] img[error="false"] {
+  display: none;
+}
+.toast_msg[error="false"] img[error="true"] {
+  display: none;
+}
+.toast_msg[error="true"] h3[error="false"] {
+  display: none;
+}
+.toast_msg[error="false"] h3[error="true"] {
+  display: none;
+}
 
 .toast_msg_right {
   position: relative;
@@ -57,7 +90,9 @@
   color: white;
 }
 
-.toast_msg_right h3 { color: white; }
+.toast_msg_right h3 {
+  color: white;
+}
 
 .toast_msg_right ul {
   flex: 1;
@@ -66,4 +101,6 @@
   color: white;
 }
 
-.toast_msg_right ul li { color: white; }
+.toast_msg_right ul li {
+  color: white;
+}

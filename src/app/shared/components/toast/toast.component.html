@@ -1,0 +1,22 @@
+<div class="toast_msg d_flex_cc_gm" [attr.error]="toast.error" *ngFor="let toast of toasts">
+  <div class="toast_msg_left d_flex_cc_gm">
+    @if (toast.error) {
+      <img src="/assets/icons/error.svg" alt="Error" width="24" height="24">
+    } @else {
+      <img src="/assets/icons/check_circle.svg" alt="Success" width="24" height="24">
+    }
+  </div>
+  <div class="toast_msg_right">
+    <h3 error="false">Success</h3>
+    <h3 error="true">Error</h3>
+    <ul class="w_full">
+      @if (toast.messages.length > 0) {
+        @for (msg of toast.messages; track $index) {
+          <li>{{ msg }}</li>
+        }
+      } @else {
+        <li>{{ toast.error ? 'An error has occurred' : 'That worked!' }}</li>
+      }
+    </ul>
+  </div>
+</div>

@@ -1,26 +1,44 @@
 // Global styles – ported 1:1 from the original vanilla frontend
-@use 'styles/variables';
-@use 'styles/fonts';
-@use 'styles/standard';
-@use 'styles/assets';
-@use 'styles/header-footer';
-@use 'styles/form';
-@use 'styles/toast-msg';
+@use "styles/variables";
+@use "styles/fonts";
+@use "styles/standard";
+@use "styles/assets";
+@use "styles/header-footer";
+@use "styles/form";
+@use "styles/toast-msg";
 
 // Page-level background helpers (from styles.css)
 .index_bg {
-  background-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 1) 100%),
-    url('/assets/img/index_bg.jpg');
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.6) 50%,
+      rgba(0, 0, 0, 1) 100%
+    ),
+    url("/assets/img/index_bg.jpg");
 }
 
 .login_bg {
-  background-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 1) 100%),
-    url('/assets/img/sign_up_bg.jpg');
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.6) 50%,
+      rgba(0, 0, 0, 1) 100%
+    ),
+    url("/assets/img/sign_up_bg.jpg");
 }
 
 .signup_bg {
-  background-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 1) 100%),
-    url('/assets/img/sign_up_bg.jpg');
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.6) 50%,
+      rgba(0, 0, 0, 1) 100%
+    ),
+    url("/assets/img/sign_up_bg.jpg");
 }
 
 .dark_bg {
