@@ -25,7 +25,7 @@
   background-color: var(--form-input-bg-color);
   padding: var(--form-input-pad);
   display: flex;
-  gap: var(--form-input-pad);
+  gap: 12px;
   align-items: center;
   color: var(--font-prime-color);
 }
@@ -39,6 +39,7 @@ textarea {
 .password_eye {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 .form_group_w_icon_wo_label {
@@ -171,7 +172,7 @@ textarea {
 .form_group_w_icon_wo_label label {
   position: absolute;
   height: 20px;
-  left: calc(20px + 14px + 14px);
+  left: calc(24px + 12px + 20px);
   top: 50%;
   transform: translateY(-50%);
   font-size: 16px;

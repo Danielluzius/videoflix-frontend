@@ -18,6 +18,34 @@ body {
   align-items: center;
 }
 
+// app-root acts as the body equivalent (background, layout)
+app-root {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// These host elements are layout-transparent – their inner elements
+// (header, footer, toast divs) become direct flex children of app-root
+app-header,
+app-footer,
+app-toast,
+// Page component host elements are transparent to flex layout
+app-home,
+app-login,
+app-register,
+app-activate,
+app-forgot-password,
+app-confirm-password,
+app-video-list,
+app-privacy,
+app-imprint {
+  display: contents;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -187,11 +215,14 @@ main {
 .f_d_r_resp_c {
   flex-direction: row !important;
 }
+.f_d_r_resp_c > * {
+  white-space: nowrap;
+}
 .f_one {
   flex: 1;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 360px) {
   .f_d_r_resp_c {
     flex-direction: column !important;
   }
@@ -225,5 +256,31 @@ main {
 @media screen and (max-width: 480px) {
   .p_top_s {
     padding-top: 36px;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  main {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .std_form.d_flex_cs_gl,
+  .std_form.d_flex_cc_gl,
+  .std_form_small.d_flex_cs_gl,
+  .std_form_small.d_flex_cc_gl {
+    gap: 16px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  main {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .std_form.d_flex_cs_gl,
+  .std_form.d_flex_cc_gl,
+  .std_form_small.d_flex_cs_gl,
+  .std_form_small.d_flex_cc_gl {
+    gap: 12px;
   }
 }

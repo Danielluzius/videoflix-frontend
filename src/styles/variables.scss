@@ -37,8 +37,8 @@
   --form-pad-small: 16px;
   --form-bg-color: rgba(27, 27, 34, 0.85);
   --form-border: 1px solid rgba(33, 48, 73, 1);
-  --form-input-rad: 16px;
-  --form-input-pad: 14px 16px;
+  --form-input-rad: 12px;
+  --form-input-pad: 12px 24px;
   --form-input-border: 1px solid rgba(46, 62, 223, 1);
   --form-input-active-border-color: rgba(46, 62, 223, 1);
   --form-input-error-border-color: rgba(255, 0, 4, 1);
@@ -55,6 +55,17 @@
   :root {
     --form-pad: 32px;
     --form-pad-small: 8px;
-    --form-input-pad: 8px 8px;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  :root {
+    --form-pad: 24px;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  :root {
+    --form-pad: 16px;
   }
 }

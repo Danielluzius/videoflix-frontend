@@ -1,0 +1,25 @@
+// On the original landing page, form.css is NOT loaded (unlike auth pages).
+// form.scss is global in Angular, so we need to undo those overrides here.
+
+// 1. Undo the form-input box styling on the wrapper div
+.form_group_w_icon_wo_label {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-top: 0;
+}
+
+// 2. Restore input_index's own white border + transparent bg + fixed width
+//    which are overridden globally by .form_group_w_icon_wo_label input { border: none; background-color: dark; width: 100% }
+input.input_index {
+  border: 2px solid white;
+  background-color: rgba(0, 0, 0, 0.4);
+  width: 350px;
+}
+
+@media screen and (max-width: 768px) {
+  input.input_index {
+    width: 100%;
+  }
+}

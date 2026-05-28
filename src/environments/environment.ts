@@ -1,12 +1,15 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://127.0.0.1:8000/api/',
+  apiBaseUrl: 'http://localhost:8000/api/',
   toastDuration: 2000,
   activation: {
     successDelay: 2500,
     errorDelay: 3000,
   },
   hls: {
+    startLevel: 2,
+    abrEwmaDefaultEstimate: 8_000_000,
+    capLevelToPlayerSize: false,
     maxBufferLength: 45,
     maxMaxBufferLength: 900,
     maxBufferSize: 90 * 1000 * 1000,

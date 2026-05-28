@@ -13,9 +13,12 @@
   white-space: nowrap;
 }
 
-.std_btn_disabled {
-  cursor: default !important;
-  background-color: rgb(121, 121, 121) !important;
+.std_btn_disabled,
+.std_btn:disabled {
+  cursor: not-allowed !important;
+  background-color: #5e5e5e !important;
+  color: #d3d3d3 !important;
+  pointer-events: none;
 }
 
 .btn_prime {

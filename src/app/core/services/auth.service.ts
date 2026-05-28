@@ -48,4 +48,3 @@ export class AuthService {
     this.refreshSubscription = null;
   }
 }
-

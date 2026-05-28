@@ -27,6 +27,13 @@ export class HeaderComponent {
     { initialValue: this.router.url },
   );
 
+  logoLink(): string {
+    const url = this.currentUrl();
+    if (url === '/') return '/';
+    if (url.startsWith('/videos')) return '/videos';
+    return '/auth/login';
+  }
+
   showLoginBtn(): boolean {
     const url = this.currentUrl();
     return (
@@ -45,6 +52,19 @@ export class HeaderComponent {
   showLogoutBtn(): boolean {
     const url = this.currentUrl();
     return url.startsWith('/videos');
+  }
+
+  showBackBtn(): boolean {
+    const url = this.currentUrl();
+    return url === '/privacy' || url === '/imprint';
+  }
+
+  goBack(): void {
+    if (document.referrer && document.referrer !== window.location.href) {
+      window.history.back();
+    } else {
+      this.router.navigate(['/auth/login']);
+    }
   }
 
   logout(): void {

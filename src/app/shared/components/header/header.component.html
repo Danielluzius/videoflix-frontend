@@ -1,5 +1,5 @@
 <header class="main_header w_full">
-    <a aria-label="main page" routerLink="/">
+    <a aria-label="main page" [routerLink]="logoLink()">
         <img src="/assets/icons/logo_icon_small.svg" alt="Videoflix Logo Small">
         <img src="/assets/icons/logo_icon.svg" alt="Videoflix Logo">
     </a>
@@ -16,8 +16,15 @@
         }
         @if (showLogoutBtn()) {
         <a aria-label="logout" (click)="logout()" class="std_btn btn_prime pad_s d_flex_cc_gs" style="cursor:pointer">
-            Logout
+            <img src="/assets/icons/logout.svg" alt="" width="24" height="24">
+            Log Out
         </a>
         }
     </div>
+    @if (showBackBtn()) {
+    <a aria-label="go back" (click)="goBack()" style="cursor:pointer">
+        <img src="/assets/icons/arrow_back.svg" alt="go back">
+        <img src="/assets/icons/arrow_back.svg" alt="go back">
+    </a>
+    }
 </header>

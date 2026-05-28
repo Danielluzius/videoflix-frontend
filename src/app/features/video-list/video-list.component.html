@@ -1,0 +1,72 @@
+<main class="w_full d_flex_ss_gl font_white_color">
+    <section class="preview_section" [class.preview-hidden]="!previewVisible">
+        <div class="preview_section_video">
+            <img class="preview-thumb" [class.thumb-hidden]="!thumbnailVisible" [src]="currentThumbnailUrl" alt="">
+            <video #videoPlayer autoplay muted id="videoPlayer" [class.video-ready]="previewVideoReady"></video>
+            <div class="preview_section_video_overlay"></div>
+        </div>
+        <article [class.title-fading]="titleFading">
+            <h1 id="videoTitle" [style.color]="loadError ? 'red' : ''">{{ videoTitle }}</h1>
+            <p id="videoDescription">{{ videoDescription }}</p>
+            <button [style.display]="loadError ? 'none' : ''" id="playButton"
+                class="std_btn btn_prime pad_s d_flex_cc_gs" (click)="playVideo()">
+                <img src="/assets/icons/play_arrow.svg" alt="" width="24" height="24">
+                Play
+            </button>
+        </article>
+    </section>
+
+    <section class="list_section">
+
+        <section class="video_list">
+            <h2 [style.display]="loadError ? 'none' : ''" id="category-new">New on Videoflix</h2>
+            <div class="scroll-wrapper">
+                <ul id="newest">
+                    @if (newestVideos.length === 0 && !loadError) {
+                    <li style="font-style: italic"></li>
+                    }
+                    @for (video of newestVideos; track video.id) {
+                    <li [class.active_thumbnail]="currentVideo === video.id">
+                        <img [src]="video.thumbnail_url" [alt]="video.title" (click)="previewVideo(video.id)">
+                    </li>
+                    }
+                </ul>
+            </div>
+        </section>
+
+        @for (cat of categories; track cat) {
+        <section class="video_list dynamic-category">
+            <h2>{{ cat.charAt(0).toUpperCase() + cat.slice(1) }}</h2>
+            <div class="scroll-wrapper">
+                <button class="scroll-btn scroll-btn-left" (click)="scrollHorizontally($event, -1)">
+                    <img src="/assets/icons/arrow_back.svg" alt="" width="16" height="16">
+                </button>
+                <ul [id]="cat">
+                    @for (video of getVideosForCategory(cat); track video.id) {
+                    <li [class.active_thumbnail]="currentVideo === video.id">
+                        <img [src]="video.thumbnail_url" [alt]="video.title" (click)="showVideo(video.id)">
+                    </li>
+                    }
+                </ul>
+                <button class="scroll-btn scroll-btn-right" (click)="scrollHorizontally($event, 1)">
+                    <img src="/assets/icons/chevron_right.svg" alt="" width="16" height="16">
+                </button>
+            </div>
+        </section>
+        }
+
+    </section>
+
+    <div id="overlay" class="video-overlay" [class.open]="overlayOpen">
+        <div class="overlay-content">
+            <div class="overlay-header">
+                <img src="/assets/icons/arrow_back.svg" (click)="closeVideoOverlay()" alt="">
+                <h1 id="overlayTitle">{{ overlayTitle }}</h1>
+                <img src="/assets/icons/logo_icon_small.svg" alt="">
+            </div>
+            <div class="video-wrapper">
+                <video #overlayVideo id="overlayVideo"></video>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,4 +1,5 @@
-import { Component, HostBinding, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -7,13 +8,11 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink],
+  imports: [FormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent implements OnInit {
-  @HostBinding('class') hostClass = 'img_bg signup_bg';
-
   private authService = inject(AuthService);
   private toast = inject(ToastService);
 
@@ -28,6 +27,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     const email = localStorage.getItem('email');
     if (email && email.length > 0) {
+      this.signUpValues.email = email.trim();
       const emailInput = document.getElementById('email') as HTMLInputElement;
       if (emailInput) emailInput.value = email;
     }
@@ -44,7 +44,9 @@ export class RegisterComponent implements OnInit {
     const valid = value.trim().length > 7;
     this.passwordError = !valid;
     if (valid) this.signUpValues.password = value.trim();
-    const confirmedInput = document.getElementById('confirmed_password') as HTMLInputElement;
+    const confirmedInput = document.getElementById(
+      'confirmed_password',
+    ) as HTMLInputElement;
     if (confirmedInput?.value.trim().length > 0) {
       this.validateConfirmPW(confirmedInput.value);
     }
@@ -52,22 +54,35 @@ export class RegisterComponent implements OnInit {
   }
 
   validateConfirmPW(value: string): boolean {
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const passwordInput = document.getElementById(
+      'password',
+    ) as HTMLInputElement;
     const valid = passwordInput?.value.trim() === value.trim();
     this.confirmedPasswordError = !valid;
     if (valid) this.signUpValues.confirmed_password = value.trim();
     return valid;
   }
 
-  togglePassword(input: HTMLInputElement): void {
+  togglePassword(input: HTMLInputElement, event: MouseEvent): void {
     input.type = input.type === 'password' ? 'text' : 'password';
+    const icon = event.target as HTMLImageElement;
+    icon.src =
+      input.type === 'text'
+        ? '/assets/icons/visibility_off.svg'
+        : '/assets/icons/visibility.svg';
   }
 
   private validateSignUp(): boolean {
     const emailInput = document.getElementById('email') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    const confirmedInput = document.getElementById('confirmed_password') as HTMLInputElement;
-    const privacyCheckbox = document.getElementById('privacy_policy') as HTMLInputElement;
+    const passwordInput = document.getElementById(
+      'password',
+    ) as HTMLInputElement;
+    const confirmedInput = document.getElementById(
+      'confirmed_password',
+    ) as HTMLInputElement;
+    const privacyCheckbox = document.getElementById(
+      'privacy_policy',
+    ) as HTMLInputElement;
 
     this.validateRegistrationEmail(emailInput.value);
     this.validatePW(passwordInput.value);
@@ -79,25 +94,40 @@ export class RegisterComponent implements OnInit {
       this.privacyError = false;
     }
 
-    return !this.emailError && !this.passwordError && !this.confirmedPasswordError && !this.privacyError;
+    return (
+      !this.emailError &&
+      !this.passwordError &&
+      !this.confirmedPasswordError &&
+      !this.privacyError
+    );
   }
 
   onSubmit(): void {
-    const privacyCheckbox = document.getElementById('privacy_policy') as HTMLInputElement;
+    const privacyCheckbox = document.getElementById(
+      'privacy_policy',
+    ) as HTMLInputElement;
     if (privacyCheckbox && !privacyCheckbox.checked) {
       this.privacyError = true;
-      this.toast.showToastMessage(true, ['Please accept the privacy policy to continue']);
+      this.toast.showToastMessage(true, [
+        'Please accept the privacy policy to continue',
+      ]);
       return;
     }
 
     if (!this.validateSignUp()) {
-      this.toast.showToastMessage(true, ['Please correct the errors in the form']);
+      this.toast.showToastMessage(true, [
+        'Please correct the errors in the form',
+      ]);
       return;
     }
 
     const emailInput = document.getElementById('email') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
-    const confirmedInput = document.getElementById('confirmed_password') as HTMLInputElement;
+    const passwordInput = document.getElementById(
+      'password',
+    ) as HTMLInputElement;
+    const confirmedInput = document.getElementById(
+      'confirmed_password',
+    ) as HTMLInputElement;
 
     const data = {
       email: emailInput.value,

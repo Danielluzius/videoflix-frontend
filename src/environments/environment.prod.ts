@@ -7,6 +7,9 @@ export const environment = {
     errorDelay: 3000,
   },
   hls: {
+    startLevel: 2,
+    abrEwmaDefaultEstimate: 8_000_000,
+    capLevelToPlayerSize: false,
     maxBufferLength: 45,
     maxMaxBufferLength: 900,
     maxBufferSize: 90 * 1000 * 1000,

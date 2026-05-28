@@ -1,4 +1,5 @@
-import { Component, HostBinding, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
@@ -6,17 +7,16 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
 export class ForgotPasswordComponent {
-  @HostBinding('class') hostClass = 'img_bg login_bg';
-
   private authService = inject(AuthService);
   private toast = inject(ToastService);
 
   emailError = false;
+  emailValue = '';
 
   private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -27,7 +27,9 @@ export class ForgotPasswordComponent {
   }
 
   onSubmit(): void {
-    const emailInput = document.getElementById('forgot_email') as HTMLInputElement;
+    const emailInput = document.getElementById(
+      'forgot_email',
+    ) as HTMLInputElement;
     if (!this.validateEmail(emailInput.value)) return;
 
     const data = { email: emailInput.value };

@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -12,8 +12,6 @@ import { environment } from '../../../../environments/environment';
   styleUrl: './activate.component.scss',
 })
 export class ActivateComponent implements OnInit {
-  @HostBinding('class') hostClass = 'img_bg signup_bg';
-
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private toast = inject(ToastService);

@@ -1,25 +1,44 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
+    title: 'Videoflix',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'auth/login',
-    loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+    title: 'Videoflix - Login',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then(
+        (m) => m.LoginComponent,
+      ),
   },
   {
     path: 'auth/register',
-    loadComponent: () => import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
+    title: 'Videoflix - Register',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/register/register.component').then(
+        (m) => m.RegisterComponent,
+      ),
   },
   {
     path: 'auth/activate',
-    loadComponent: () => import('./features/auth/activate/activate.component').then((m) => m.ActivateComponent),
+    title: 'Videoflix - Activate Account',
+    loadComponent: () =>
+      import('./features/auth/activate/activate.component').then(
+        (m) => m.ActivateComponent,
+      ),
   },
   {
     path: 'auth/forgot-password',
+    title: 'Videoflix - Forgot Password',
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password.component').then(
         (m) => m.ForgotPasswordComponent,
@@ -27,6 +46,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth/confirm-password',
+    title: 'Videoflix - Reset Password',
     loadComponent: () =>
       import('./features/auth/confirm-password/confirm-password.component').then(
         (m) => m.ConfirmPasswordComponent,
@@ -34,18 +54,28 @@ export const routes: Routes = [
   },
   {
     path: 'videos',
+    title: 'Videoflix - Browse',
     loadComponent: () =>
-      import('./features/video-list/video-list.component').then((m) => m.VideoListComponent),
+      import('./features/video-list/video-list.component').then(
+        (m) => m.VideoListComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'privacy',
-    loadComponent: () => import('./features/privacy/privacy.component').then((m) => m.PrivacyComponent),
+    title: 'Videoflix - Privacy Policy',
+    loadComponent: () =>
+      import('./features/privacy/privacy.component').then(
+        (m) => m.PrivacyComponent,
+      ),
   },
   {
     path: 'imprint',
-    loadComponent: () => import('./features/imprint/imprint.component').then((m) => m.ImprintComponent),
+    title: 'Videoflix - Imprint',
+    loadComponent: () =>
+      import('./features/imprint/imprint.component').then(
+        (m) => m.ImprintComponent,
+      ),
   },
   { path: '**', redirectTo: '' },
 ];
-

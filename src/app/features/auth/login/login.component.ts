@@ -1,4 +1,4 @@
-import { Component, HostBinding, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,8 +13,6 @@ import { environment } from '../../../../environments/environment';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  @HostBinding('class') hostClass = 'img_bg login_bg';
-
   private authService = inject(AuthService);
   private toast = inject(ToastService);
 
@@ -36,13 +34,20 @@ export class LoginComponent {
     return valid;
   }
 
-  togglePassword(input: HTMLInputElement): void {
+  togglePassword(input: HTMLInputElement, event: MouseEvent): void {
     input.type = input.type === 'password' ? 'text' : 'password';
+    const icon = event.target as HTMLImageElement;
+    icon.src =
+      input.type === 'text'
+        ? '/assets/icons/visibility_off.svg'
+        : '/assets/icons/visibility.svg';
   }
 
   onSubmit(): void {
     const emailInput = document.getElementById('email') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
+    const passwordInput = document.getElementById(
+      'password',
+    ) as HTMLInputElement;
     this.loginError = false;
 
     const emailValid = this.validateEmail(emailInput.value);
@@ -58,7 +63,12 @@ export class LoginComponent {
         const errorArr = this.toast.extractErrorMessages(response.data);
         this.toast.showToastMessage(true, errorArr);
       } else {
-        this.toast.showToastAndRedirect(false, ['Login successful!'], '/videos', environment.toastDuration);
+        this.toast.showToastAndRedirect(
+          false,
+          ['Login successful!'],
+          '/videos',
+          environment.toastDuration,
+        );
       }
     });
   }
