@@ -308,10 +308,6 @@ app-video-list main {
 }
 
 @media screen and (max-width: 1024px) {
-  .preview_section {
-    height: 45vh;
-    min-height: 340px;
-  }
   .video_list ul > li {
     height: 96px;
   }
@@ -321,10 +317,6 @@ app-video-list main {
 }
 
 @media screen and (max-width: 768px) {
-  .preview_section {
-    height: 40vh;
-    min-height: 300px;
-  }
   #playButton img {
     width: 20px;
     height: 20px;
@@ -350,10 +342,6 @@ app-video-list main {
 }
 
 @media screen and (max-width: 480px) {
-  .preview_section {
-    height: 35vh;
-    min-height: 260px;
-  }
   #playButton img {
     width: 16px;
     height: 16px;
