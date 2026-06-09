@@ -90,15 +90,16 @@ app-video-list main {
   width: 100%;
   height: 100%;
   z-index: 2;
-  padding: 62px max(clamp(16px, 4vw, 48px), calc(50% - 720px)) 0;
+  padding: 0 max(clamp(16px, 4vw, 48px), calc(50% - 720px));
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
+  justify-content: center;
+  gap: clamp(12px, 2.5vw, 32px);
 }
 
 .preview_title {
-  font-size: clamp(24px, 5.5vw, 88px);
+  font-size: clamp(28px, 5.5vw, 88px);
   font-weight: 700;
   line-height: 1.25;
   color: #ffffff;
@@ -306,7 +307,7 @@ app-video-list main {
   }
 }
 
-@media screen and (max-width: 1024px) and (min-width: 768px) {
+@media screen and (max-width: 1024px) {
   .preview_section {
     height: 45vh;
     min-height: 340px;
@@ -319,7 +320,7 @@ app-video-list main {
   }
 }
 
-@media screen and (max-width: 767px) and (min-width: 480px) {
+@media screen and (max-width: 768px) {
   .preview_section {
     height: 40vh;
     min-height: 300px;
@@ -348,7 +349,7 @@ app-video-list main {
   }
 }
 
-@media screen and (max-width: 479px) {
+@media screen and (max-width: 480px) {
   .preview_section {
     height: 35vh;
     min-height: 260px;

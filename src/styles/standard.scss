@@ -90,13 +90,13 @@ main {
   }
 }
 
-@media only screen and (min-width: 770px) and (max-width: 1024px) {
+@media only screen and (max-width: 1024px) {
   main {
     padding: 32px;
   }
 }
 
-@media only screen and (min-width: 481px) and (max-width: 769px) {
+@media only screen and (max-width: 768px) {
   .pad_s {
     padding: 4px 8px;
   }
