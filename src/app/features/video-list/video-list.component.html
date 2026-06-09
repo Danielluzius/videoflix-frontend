@@ -5,15 +5,15 @@
             <video #videoPlayer autoplay muted id="videoPlayer" [class.video-ready]="previewVideoReady"></video>
             <div class="preview_section_video_overlay"></div>
         </div>
-        <article [class.title-fading]="titleFading">
-            <h1 id="videoTitle" [style.color]="loadError ? 'red' : ''">{{ videoTitle }}</h1>
-            <p id="videoDescription">{{ videoDescription }}</p>
+        <div class="preview_section_content">
+            <h1 class="preview_title" [style.color]="loadError ? 'red' : ''">{{ videoTitle }}</h1>
+            <p class="preview_description">{{ videoDescription }}</p>
             <button [style.display]="loadError ? 'none' : ''" id="playButton"
                 class="std_btn btn_prime pad_s d_flex_cc_gs" (click)="playVideo()">
                 <img src="/assets/icons/play_arrow.svg" alt="" width="24" height="24">
                 Play
             </button>
-        </article>
+        </div>
     </section>
 
     <section class="list_section">

@@ -16,6 +16,7 @@ app-video-list main {
   margin-left: -50vw;
   height: 55vh;
   min-height: 400px;
+  max-height: 600px;
   transition: opacity 0.5s ease;
 }
 
@@ -82,38 +83,40 @@ app-video-list main {
   z-index: 1;
 }
 
-.preview_section > article {
+.preview_section_content {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 2;
-  top: 170px;
-  left: max(48px, calc(50% - 720px));
-  width: 440px;
+  padding: 62px max(clamp(16px, 4vw, 48px), calc(50% - 720px)) 0;
   display: flex;
-  gap: 32px;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0;
+  gap: 32px;
 }
 
-.preview_section > article h1 {
-  font-size: 88px;
+.preview_title {
+  font-size: clamp(24px, 5.5vw, 88px);
   font-weight: 700;
   line-height: 1.25;
   color: #ffffff;
   margin: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.preview_section > article p {
+.preview_description {
   font-size: 16px;
-  font-weight: 400;
-  line-height: 21px;
   color: #ffffff;
   margin: 0;
-}
-
-.preview_section > article > button {
-  flex-shrink: 0;
+  max-width: 440px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .video-overlay {
@@ -308,17 +311,6 @@ app-video-list main {
     height: 45vh;
     min-height: 340px;
   }
-  .preview_section > article {
-    top: 120px;
-    width: 320px;
-    gap: 16px;
-  }
-  .preview_section > article p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
   .video_list ul > li {
     height: 96px;
   }
@@ -332,23 +324,9 @@ app-video-list main {
     height: 40vh;
     min-height: 300px;
   }
-  .preview_section > article {
-    top: 80px;
-    width: 260px;
-    gap: 12px;
-  }
-  .preview_section > article p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
   #playButton img {
     width: 20px;
     height: 20px;
-  }
-  .preview_section > article > button {
-    margin-top: 8px;
   }
   .video_list ul > li {
     height: 80px;
@@ -375,23 +353,9 @@ app-video-list main {
     height: 35vh;
     min-height: 260px;
   }
-  .preview_section > article {
-    top: 60px;
-    width: 200px;
-    gap: 8px;
-  }
-  .preview_section > article p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
   #playButton img {
     width: 16px;
     height: 16px;
-  }
-  .preview_section > article > button {
-    margin-top: 8px;
   }
   .video_list ul > li {
     height: 72px;
@@ -436,7 +400,7 @@ app-video-list main {
   width: 100%;
   z-index: 1;
   overflow: hidden;
-  padding: 0 max(48px, calc(50% - 720px));
+  padding: 0 max(clamp(16px, 4vw, 48px), calc(50% - 720px));
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -631,20 +595,6 @@ app-video-list main {
   justify-content: center;
   align-items: center;
   color: #f44336;
-}
-
-// ── Title fade ───────────────────────────────────────────────────
-
-.preview_section > article h1,
-.preview_section > article p,
-.preview_section > article button {
-  transition: opacity 0.5s ease;
-}
-
-.preview_section > article.title-fading h1,
-.preview_section > article.title-fading p,
-.preview_section > article.title-fading button {
-  opacity: 0;
 }
 
 // ── Plyr player theme overrides ──────────────────────────────────

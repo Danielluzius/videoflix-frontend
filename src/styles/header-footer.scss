@@ -6,16 +6,13 @@
   flex-direction: row;
 }
 
-@media only screen and (min-width: 1440px) {
-  .main_header,
-  .main_footer {
-    padding-left: max(48px, calc(50% - 720px)) !important;
-    padding-right: max(48px, calc(50% - 720px)) !important;
-  }
+.main_footer {
+  padding: 48px max(clamp(16px, 4vw, 48px), calc(50% - 720px));
 }
 
 .main_header {
-  padding: 48px;
+  height: 108px;
+  padding: 0 max(clamp(16px, 4vw, 48px), calc(50% - 720px));
   position: relative;
 }
 
@@ -23,9 +20,6 @@
   cursor: pointer;
 }
 
-.main_footer {
-  padding: 48px;
-}
 .logo img {
   height: 28px;
 }
@@ -33,14 +27,9 @@
   cursor: pointer;
 }
 
-@media only screen and (max-width: 1024px) {
-  .main_header {
-    padding: 16px 32px;
-  }
-}
-
 .main_header > a > img:nth-child(1) {
   display: none;
+  height: 32px;
 }
 .main_header > a > img:nth-child(2) {
   display: block;
@@ -49,9 +38,6 @@
 @media only screen and (max-width: 769px) {
   .main_footer {
     gap: 16px;
-  }
-  .main_header {
-    padding: 16px 32px;
   }
   .main_header > a > img:nth-child(1) {
     display: block;

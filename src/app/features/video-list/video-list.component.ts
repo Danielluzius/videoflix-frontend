@@ -6,7 +6,6 @@ import {
   OnDestroy,
   inject,
   ElementRef,
-  AfterViewInit,
   ViewChild,
 } from '@angular/core';
 import Hls from 'hls.js';
@@ -23,7 +22,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './video-list.component.html',
   styleUrl: './video-list.component.scss',
 })
-export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class VideoListComponent implements OnInit, OnDestroy {
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('overlayVideo') overlayVideoRef!: ElementRef<HTMLVideoElement>;
 
@@ -63,12 +62,6 @@ export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.authService.startTokenRefreshInterval();
     this.loadVideos();
-  }
-
-  ngAfterViewInit(): void {
-    const resizeFn = () => this.fitTitleText();
-    window.addEventListener('resize', resizeFn);
-    this.resizeListeners.push(resizeFn);
   }
 
   ngOnDestroy(): void {
@@ -111,7 +104,6 @@ export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
           setTimeout(() => {
             this.loadVideo(this.videos[0].id, '480p');
             this.initScrollIndicators();
-            this.fitTitleText();
           }, 0);
         }
       },
@@ -158,7 +150,6 @@ export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.videoDescription = video.description;
     this.previewVisible = true;
     this.loadVideo(id, '480p');
-    setTimeout(() => this.fitTitleText(), 0);
   }
 
   playVideo(id?: number): void {
@@ -176,18 +167,6 @@ export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
       left: direction * container.clientWidth * 0.85,
       behavior: 'smooth',
     });
-  }
-
-  private fitTitleText(): void {
-    const h1 = document.getElementById('videoTitle') as HTMLElement;
-    if (!h1) return;
-    const maxWidth = h1.parentElement?.clientWidth ?? 440;
-    let size = 88;
-    h1.style.fontSize = size + 'px';
-    while (h1.scrollWidth > maxWidth && size > 20) {
-      size -= 2;
-      h1.style.fontSize = size + 'px';
-    }
   }
 
   // ── Preview Player ───────────────────────────────────────────────
@@ -361,7 +340,6 @@ export class VideoListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (newestUl) this.updateScrollIndicator(newestUl);
 
       setTimeout(() => {
-        this.fitTitleText();
         this.titleFading = false;
       }, 50);
     }, 500);
