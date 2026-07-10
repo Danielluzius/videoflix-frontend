@@ -38,9 +38,6 @@
         <section class="video_list dynamic-category">
             <h2>{{ cat.charAt(0).toUpperCase() + cat.slice(1) }}</h2>
             <div class="scroll-wrapper">
-                <button class="scroll-btn scroll-btn-left" (click)="scrollHorizontally($event, -1)">
-                    <img src="/assets/icons/arrow_back.svg" alt="" width="16" height="16">
-                </button>
                 <ul [id]="cat">
                     @for (video of getVideosForCategory(cat); track video.id) {
                     <li [class.active_thumbnail]="currentVideo === video.id">
@@ -48,9 +45,6 @@
                     </li>
                     }
                 </ul>
-                <button class="scroll-btn scroll-btn-right" (click)="scrollHorizontally($event, 1)">
-                    <img src="/assets/icons/chevron_right.svg" alt="" width="16" height="16">
-                </button>
             </div>
         </section>
         }

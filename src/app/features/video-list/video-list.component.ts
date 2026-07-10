@@ -1,5 +1,4 @@
 import {
-  ChangeDetectorRef,
   Component,
   HostListener,
   OnInit,
@@ -29,8 +28,6 @@ export class VideoListComponent implements OnInit, OnDestroy {
   private videoService = inject(VideoService);
   private authService = inject(AuthService);
   private toast = inject(ToastService);
-  private cdr = inject(ChangeDetectorRef);
-
   videos: Video[] = [];
   newestVideos: Video[] = [];
   categories: string[] = [];
@@ -58,6 +55,8 @@ export class VideoListComponent implements OnInit, OnDestroy {
 
   private resizeObservers: ResizeObserver[] = [];
   private resizeListeners: Array<() => void> = [];
+  private dragCleanups: Array<() => void> = [];
+  private initializedLists = new WeakSet<HTMLElement>();
 
   ngOnInit(): void {
     this.authService.startTokenRefreshInterval();
@@ -78,6 +77,7 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.resizeListeners.forEach((fn) =>
       window.removeEventListener('resize', fn),
     );
+    this.dragCleanups.forEach((fn) => fn());
   }
 
   private loadVideos(): void {
@@ -105,6 +105,7 @@ export class VideoListComponent implements OnInit, OnDestroy {
             this.loadVideo(this.videos[0].id, '480p');
             this.initScrollIndicators();
           }, 0);
+          setTimeout(() => this.initScrollIndicators(), 100);
         }
       },
       error: () => {
@@ -156,17 +157,6 @@ export class VideoListComponent implements OnInit, OnDestroy {
     const targetId = id ?? this.currentVideo;
     if (targetId == null) return;
     this.openVideoOverlay(targetId);
-  }
-
-  scrollHorizontally(event: MouseEvent, direction: 1 | -1): void {
-    const btn = event.currentTarget as HTMLElement;
-    const wrapper = btn.closest('.scroll-wrapper');
-    const container = wrapper?.querySelector('ul') as HTMLElement | null;
-    if (!container) return;
-    container.scrollBy({
-      left: direction * container.clientWidth * 0.85,
-      behavior: 'smooth',
-    });
   }
 
   // ── Preview Player ───────────────────────────────────────────────
@@ -261,73 +251,11 @@ export class VideoListComponent implements OnInit, OnDestroy {
     if (idx === -1) return;
 
     const nextIdx = (idx + 1) % this.newestVideos.length;
-    const rotated = [
-      ...this.newestVideos.slice(nextIdx),
-      ...this.newestVideos.slice(0, nextIdx),
-    ];
-    const nextVideo = rotated[0];
-
-    const newestUl = document.getElementById('newest') as HTMLElement | null;
+    const nextVideo = this.newestVideos[nextIdx];
 
     this.titleFading = true;
     this.previewVideoReady = false;
     this.thumbnailVisible = false;
-
-    // Slide carousel left via CSS transform — works regardless of overflow
-    if (newestUl) {
-      const items = newestUl.querySelectorAll('li');
-      const itemStep =
-        items.length >= 2
-          ? (items[1] as HTMLElement).offsetLeft -
-            (items[0] as HTMLElement).offsetLeft
-          : 229;
-
-      // Ghost item: a temporary <li> that shows the item which will appear at
-      // the right edge AFTER the teleport (= the last entry in rotated, which
-      // is the previously-current item A). It slides in from the right during
-      // the animation so there is no empty space and no "pop in".
-      //
-      // Only add the ghost when it would start OUTSIDE the scroll-wrapper's
-      // visible area (i.e. existing items overflow the wrapper). If all items
-      // fit on screen the ghost would be immediately visible, which looks worse.
-      const lastItem = items[items.length - 1] as HTMLElement;
-      const ghostNaturalStart = lastItem.offsetLeft + lastItem.offsetWidth + 16;
-      let ghost: HTMLLIElement | null = null;
-
-      if (ghostNaturalStart > newestUl.clientWidth) {
-        ghost = document.createElement('li');
-        const ghostImg = document.createElement('img');
-        // Use the LAST item of the rotated array: that is the item that ends up
-        // at the right edge after the teleport. Ghost and real item share the
-        // same thumbnail → no visible thumbnail change after the swap.
-        const incomingItem = rotated[rotated.length - 1];
-        ghostImg.src = incomingItem.thumbnail_url;
-        ghostImg.alt = incomingItem.title;
-        ghostImg.style.pointerEvents = 'none';
-        ghost.appendChild(ghostImg);
-        newestUl.appendChild(ghost);
-      }
-
-      newestUl.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-      newestUl.style.transform = `translateX(-${itemStep}px)`;
-
-      const onTransitionEnd = () => {
-        newestUl.removeEventListener('transitionend', onTransitionEnd);
-        // Remove ghost before teleport so it doesn't interfere with Angular's
-        // DOM diffing of the @for loop.
-        if (ghost) newestUl.removeChild(ghost);
-        // Teleport: rotate array and reset transform synchronously so the
-        // browser never paints the intermediate state.
-        this.newestVideos = rotated;
-        this.cdr.detectChanges();
-        newestUl.style.transition = 'none';
-        newestUl.style.transform = 'translateX(0)';
-        // Force a reflow so 'transition: none' is committed before the next
-        // animation potentially starts.
-        void newestUl.offsetWidth;
-      };
-      newestUl.addEventListener('transitionend', onTransitionEnd);
-    }
 
     // Swap title and thumbnail after fade-out, then load new video
     setTimeout(() => {
@@ -337,7 +265,22 @@ export class VideoListComponent implements OnInit, OnDestroy {
       this.currentThumbnailUrl = nextVideo.thumbnail_url;
       this.thumbnailVisible = true;
       this.loadVideo(nextVideo.id, '480p');
-      if (newestUl) this.updateScrollIndicator(newestUl);
+
+      // Scroll the newly active thumbnail into view — only horizontal,
+      // never touch the page's vertical scroll position.
+      setTimeout(() => {
+        const newestUl = document.getElementById(
+          'newest',
+        ) as HTMLElement | null;
+        const items = newestUl?.querySelectorAll('li');
+        if (newestUl && items && items[nextIdx]) {
+          const li = items[nextIdx] as HTMLElement;
+          const targetScrollLeft =
+            li.offsetLeft - newestUl.clientWidth / 2 + li.offsetWidth / 2;
+          newestUl.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+        }
+        if (newestUl) this.updateScrollIndicator(newestUl);
+      }, 50);
 
       setTimeout(() => {
         this.titleFading = false;
@@ -508,6 +451,8 @@ export class VideoListComponent implements OnInit, OnDestroy {
     const lists = document.querySelectorAll('.video_list ul');
     lists.forEach((list) => {
       const ul = list as HTMLElement;
+      if (this.initializedLists.has(ul)) return;
+      this.initializedLists.add(ul);
       this.updateScrollIndicator(ul);
 
       if (window.ResizeObserver) {
@@ -524,6 +469,64 @@ export class VideoListComponent implements OnInit, OnDestroy {
       this.resizeListeners.push(resizeFn);
 
       ul.addEventListener('scroll', () => this.updateScrollIndicator(ul));
+
+      // ── Mouse drag-to-scroll (desktop) ──────────────────────────
+      let isDown = false;
+      let startX = 0;
+      let scrollStart = 0;
+      let hasDragged = false;
+
+      const onMouseDown = (e: MouseEvent) => {
+        // Only react to left mouse button
+        if (e.button !== 0) return;
+        e.preventDefault(); // prevent native image drag
+        isDown = true;
+        hasDragged = false;
+        startX = e.clientX;
+        scrollStart = ul.scrollLeft;
+        ul.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none';
+      };
+
+      // Listen on document so dragging outside the ul still works
+      const onDocMouseMove = (e: MouseEvent) => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 4) hasDragged = true;
+        ul.scrollLeft = scrollStart - dx;
+      };
+
+      const onDocMouseUp = () => {
+        if (!isDown) return;
+        isDown = false;
+        ul.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+
+      // Suppress click on child elements when the user was dragging
+      const onClickCapture = (e: MouseEvent) => {
+        if (hasDragged) {
+          e.stopPropagation();
+          hasDragged = false;
+        }
+      };
+
+      // Prevent browser native image/text drag from hijacking mousemove
+      const onDragStart = (e: DragEvent) => e.preventDefault();
+
+      ul.addEventListener('mousedown', onMouseDown);
+      ul.addEventListener('dragstart', onDragStart);
+      ul.addEventListener('click', onClickCapture, true);
+      document.addEventListener('mousemove', onDocMouseMove);
+      document.addEventListener('mouseup', onDocMouseUp);
+
+      this.dragCleanups.push(() => {
+        ul.removeEventListener('mousedown', onMouseDown);
+        ul.removeEventListener('dragstart', onDragStart);
+        ul.removeEventListener('click', onClickCapture, true);
+        document.removeEventListener('mousemove', onDocMouseMove);
+        document.removeEventListener('mouseup', onDocMouseUp);
+      });
     });
   }
 

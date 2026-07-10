@@ -333,12 +333,6 @@ app-video-list main {
   .overlay-content {
     padding: 16px;
   }
-  .scroll-wrapper::after {
-    width: 90px;
-  }
-  .scroll-wrapper:has(#newest)::after {
-    width: 56px;
-  }
 }
 
 @media screen and (max-width: 480px) {
@@ -376,12 +370,6 @@ app-video-list main {
   .close-btn {
     font-size: 1.2rem;
     padding: 8px 12px;
-  }
-  .scroll-wrapper::after {
-    width: 70px;
-  }
-  .scroll-wrapper:has(#newest)::after {
-    width: 40px;
   }
 }
 
@@ -510,22 +498,32 @@ app-video-list main {
   overflow: hidden;
 }
 
+// Sanfter Schattenverlauf — links und rechts, nur wenn Inhalt abgeschnitten
+.scroll-wrapper::before,
 .scroll-wrapper::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 0;
-  width: 200px;
+  width: clamp(24px, 4vw, 60px);
   height: 100%;
-  background: linear-gradient(
-    88.67deg,
-    rgba(20, 20, 20, 0) 1.13%,
-    #141414 48.04%
-  );
   pointer-events: none;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease;
+}
+
+.scroll-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, #141414, transparent);
+}
+
+.scroll-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, #141414, transparent);
+}
+
+.scroll-wrapper.has-overflow-left::before {
+  opacity: 1;
 }
 
 .scroll-wrapper.has-overflow-right::after {
@@ -546,26 +544,11 @@ app-video-list main {
   -ms-overflow-style: none;
   scrollbar-width: none;
   touch-action: pan-x;
-}
-
-// The newest carousel uses transform, not scrollLeft — disable touch-action
-// there so gesture events don't accidentally scroll the (already overflow:visible) list.
-// overflow:visible lets items slide out of the ul boundary; the scroll-wrapper
-// clips them instead.
-#newest {
-  overflow: visible;
-  touch-action: none;
+  cursor: grab;
 }
 
 .video_list ul::-webkit-scrollbar {
   display: none;
-}
-
-// Always show the right-edge fade for the newest carousel. This masks edge
-// transitions in both the overflow case (ghost slides in) and the rare
-// no-overflow case (items shift left, empty space appears).
-.scroll-wrapper:has(#newest)::after {
-  opacity: 1;
 }
 
 // Auf kleinen Bildschirmen wird der Gradient nicht ausgeblendet, sondern
