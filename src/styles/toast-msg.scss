@@ -46,20 +46,27 @@
 }
 
 @media screen and (max-width: 500px) {
-  .toast_msg_left {
-    width: 16px;
-    padding: 4px;
-  }
-  .toast_msg_left img {
-    width: 16px;
-    height: 16px;
-  }
   .toast_msg {
-    min-width: 0px;
-    margin-right: 16px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    animation: slideInFromBottom 0.25s ease-out forwards;
   }
 }
 
+@keyframes slideInFromBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .toast_msg[error="true"] .toast_msg_left {
   background: rgba(255, 0, 0, 1);
 }

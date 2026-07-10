@@ -667,3 +667,9 @@ app-video-list main {
 app-video-list ~ app-footer .main_footer nav {
   justify-content: flex-end;
 }
+
+@media screen and (max-width: 768px) {
+  app-video-list ~ app-footer .main_footer nav {
+    justify-content: center;
+  }
+}
