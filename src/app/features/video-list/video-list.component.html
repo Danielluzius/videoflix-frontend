@@ -51,16 +51,12 @@
 
     </section>
 
-    <div id="overlay" class="video-overlay" [class.open]="overlayOpen">
-        <div class="overlay-content">
-            <div class="overlay-header">
-                <img src="/assets/icons/arrow_back.svg" (click)="closeVideoOverlay()" alt="">
-                <h1 id="overlayTitle">{{ overlayTitle }}</h1>
-                <img src="/assets/icons/logo_icon_small.svg" alt="">
-            </div>
-            <div class="video-wrapper">
-                <video #overlayVideo id="overlayVideo"></video>
-            </div>
+    <div id="overlay" class="video-overlay" [class.open]="overlayOpen" (click)="closeVideoOverlay()">
+        <div class="rotate-hint" (click)="onRotateHintTap($event)">
+            <img src="/assets/img/rotate_device.gif" alt="" class="rotate-gif">
+        </div>
+        <div class="video-wrapper" (click)="$event.stopPropagation()">
+            <video #overlayVideo id="overlayVideo"></video>
         </div>
     </div>
 </main>

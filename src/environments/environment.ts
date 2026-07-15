@@ -20,7 +20,7 @@ export const environment = {
     nudgeOffset: 0.1,
     nudgeMaxRetry: 3,
     maxFragLookUpTolerance: 0.25,
-    enableWorker: true,
+    enableWorker: false,
     startFragPrefetch: true,
     testBandwidth: true,
     enableSoftwareAES: true,

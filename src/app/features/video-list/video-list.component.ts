@@ -39,6 +39,7 @@ export class VideoListComponent implements OnInit, OnDestroy {
   currentVideo: number | null = null;
   overlayOpen = false;
   overlayTitle = '';
+  overlayDescription = '';
   currentThumbnailUrl = '';
   thumbnailVisible = true;
   previewVideoReady = false;
@@ -296,6 +297,7 @@ export class VideoListComponent implements OnInit, OnDestroy {
 
     this.overlayOpen = true;
     this.overlayTitle = video.title;
+    this.overlayDescription = video.description;
     document.body.classList.add('overlay-open');
     document.body.style.overflow = 'hidden';
     this.hideHeader();
@@ -340,6 +342,15 @@ export class VideoListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Tap auf den Rotate-Hinweis: im Querformat Fullscreen starten
+  onRotateHintTap(event: Event): void {
+    event.stopPropagation();
+    if (window.matchMedia('(orientation: landscape)').matches) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.plyr as any)?.fullscreen?.enter();
+    }
+  }
+
   private loadVideoInOverlay(id: number, autoPlay = true): void {
     // Use getElementById instead of @ViewChild to always get the live DOM node,
     // even if Plyr has moved the element inside its wrapper during a previous session.
@@ -376,7 +387,6 @@ export class VideoListComponent implements OnInit, OnDestroy {
 
       this.plyr = new Plyr(overlayEl, {
         controls: [
-          'play-large',
           'play',
           'progress',
           'current-time',
@@ -386,6 +396,7 @@ export class VideoListComponent implements OnInit, OnDestroy {
           'pip',
           'fullscreen',
         ],
+        clickToPlay: false,
         settings: ['quality'],
         quality: {
           default: 0,
@@ -403,6 +414,67 @@ export class VideoListComponent implements OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i18n: { qualityLabel: { 0: 'Auto' } } as any,
       });
+
+      // Inject top bar and info-overlay into the Plyr container.
+      // setTimeout 0 ensures Plyr has created its .plyr wrapper in the DOM.
+      setTimeout(() => {
+        const plyrEl = overlayEl.closest('.plyr') as HTMLElement | null;
+        if (plyrEl && !plyrEl.querySelector('.overlay-top-bar')) {
+          // ── Top bar: zentrierter Titel + X-Button rechts ──────────
+          const topBar = document.createElement('div');
+          topBar.className = 'overlay-top-bar';
+
+          const titleEl = document.createElement('span');
+          titleEl.className = 'overlay-top-title';
+          titleEl.textContent = this.overlayTitle;
+
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'plyr__control overlay-close-btn';
+          closeBtn.setAttribute('aria-label', 'Schließen');
+          closeBtn.setAttribute('type', 'button');
+          closeBtn.innerHTML =
+            '<svg aria-hidden="true" focusable="false" viewBox="0 0 18 18">' +
+            '<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9' +
+            'l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"' +
+            ' fill="currentColor"/></svg>';
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.closeVideoOverlay();
+          });
+
+          topBar.appendChild(titleEl);
+          topBar.appendChild(closeBtn);
+          plyrEl.appendChild(topBar);
+
+          // ── Info-Overlay: Titel + Beschreibung (mitte links) ──────
+          const infoOverlay = document.createElement('div');
+          infoOverlay.className = 'overlay-info';
+
+          const infoTitle = document.createElement('span');
+          infoTitle.className = 'overlay-info-title';
+          infoTitle.textContent = this.overlayTitle;
+
+          const infoDesc = document.createElement('span');
+          infoDesc.className = 'overlay-info-description';
+          infoDesc.textContent = this.overlayDescription;
+
+          infoOverlay.appendChild(infoTitle);
+          if (this.overlayDescription) infoOverlay.appendChild(infoDesc);
+          plyrEl.appendChild(infoOverlay);
+
+          // Click on video area (not on controls/custom elements) → play/pause
+          const videoWrapper = plyrEl.querySelector<HTMLElement>(
+            '.plyr__video-wrapper',
+          );
+          if (videoWrapper) {
+            videoWrapper.addEventListener('click', (e) => {
+              e.stopPropagation();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (this.plyr as any)?.togglePlay?.();
+            });
+          }
+        }
+      }, 0);
 
       if (autoPlay) {
         setTimeout(() => {

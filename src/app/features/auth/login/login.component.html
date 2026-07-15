@@ -25,7 +25,14 @@
         </p>
 
         <div class="d_flex_cc_gl f_d_c w_full">
-            <button type="submit" class="std_btn btn_prime pad_s d_flex_cc_gs">Log in</button>
+            <div class="d_flex_cc_gm f_d_r_resp_c w_full">
+                <button type="submit" [disabled]="!emailInput.value || !passwordInput.value"
+                    class="std_btn btn_prime pad_s d_flex_cc_gs f_one">Log in</button>
+                <button type="button" (click)="onGuestLogin()" [disabled]="guestLoading"
+                    class="std_btn btn_prime_outline pad_s d_flex_cc_gs f_one">
+                    {{ guestLoading ? 'Loading...' : 'Guest Login' }}
+                </button>
+            </div>
             <a aria-label="forgot password page" routerLink="/auth/forgot-password" class="link link_prime fontw_bold">
                 Forgot password?
             </a>

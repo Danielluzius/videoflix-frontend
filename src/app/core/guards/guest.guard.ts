@@ -1,19 +1,15 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { map, catchError, of } from 'rxjs';
-import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 export const guestGuard: CanActivateFn = () => {
-  const api = inject(ApiService);
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  return api.get('video/').pipe(
-    map((response) => {
-      if (response.ok) {
-        return router.createUrlTree(['/videos']);
-      }
-      return true;
-    }),
-    catchError(() => of(true)),
-  );
+  // If locally authenticated, redirect to videos without API call
+  if (auth.isLocallyAuthenticated()) {
+    return router.createUrlTree(['/videos']);
+  }
+
+  return true;
 };

@@ -19,6 +19,7 @@ export class LoginComponent {
   emailError = false;
   passwordError = false;
   loginError = false;
+  guestLoading = false;
 
   private emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -63,9 +64,29 @@ export class LoginComponent {
         const errorArr = this.toast.extractErrorMessages(response.data);
         this.toast.showToastMessage(true, errorArr);
       } else {
+        this.authService.setAuthenticated(true);
         this.toast.showToastAndRedirect(
           false,
           ['Login successful!'],
+          '/videos',
+          environment.toastDuration,
+        );
+      }
+    });
+  }
+
+  onGuestLogin(): void {
+    this.guestLoading = true;
+    this.authService.guestLogin().subscribe((response) => {
+      this.guestLoading = false;
+      if (!response.ok) {
+        const errorArr = this.toast.extractErrorMessages(response.data);
+        this.toast.showToastMessage(true, errorArr);
+      } else {
+        this.authService.setAuthenticated(true);
+        this.toast.showToastAndRedirect(
+          false,
+          ['Welcome, Guest!'],
           '/videos',
           environment.toastDuration,
         );

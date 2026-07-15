@@ -7,9 +7,26 @@ import { ApiService, ApiResponse } from './api.service';
 export class AuthService {
   private api = inject(ApiService);
   private refreshSubscription: Subscription | null = null;
+  private static readonly AUTH_KEY = 'vfx_auth';
+
+  setAuthenticated(value: boolean): void {
+    if (value) {
+      localStorage.setItem(AuthService.AUTH_KEY, '1');
+    } else {
+      localStorage.removeItem(AuthService.AUTH_KEY);
+    }
+  }
+
+  isLocallyAuthenticated(): boolean {
+    return localStorage.getItem(AuthService.AUTH_KEY) === '1';
+  }
 
   login(data: Record<string, string>): Observable<ApiResponse> {
     return this.api.post('login/', data);
+  }
+
+  guestLogin(): Observable<ApiResponse> {
+    return this.api.post('guest-login/', {});
   }
 
   register(data: Record<string, string>): Observable<ApiResponse> {
@@ -18,6 +35,7 @@ export class AuthService {
 
   logout(): Observable<ApiResponse> {
     this.stopTokenRefreshInterval();
+    this.setAuthenticated(false); // Clear local state immediately
     return this.api.post('logout/', {});
   }
 
