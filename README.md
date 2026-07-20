@@ -1,5 +1,7 @@
 # Videoflix Frontend
 
+🌐 Language: English | [Deutsch](README.de.md)
+
 An Angular 19 single-page application for the Videoflix video streaming platform.
 Users can browse, preview, and stream videos in adaptive quality (HLS) after logging in.
 
