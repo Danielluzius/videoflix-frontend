@@ -140,4 +140,4 @@ Produktions-Artefakte werden in `dist/` ausgegeben. Die `environment.prod.ts`-Ko
 ## Backend
 
 Dieses Frontend benötigt das Videoflix-Backend unter `http://localhost:8000`.
-Weitere Informationen zur Einrichtung findest du in der [Backend-README](../backend/README.de.md).
+Weitere Informationen zur Einrichtung findest du im [Backend-Repository](https://github.com/Danielluzius/videoflix-backend).
