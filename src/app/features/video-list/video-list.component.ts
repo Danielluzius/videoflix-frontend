@@ -46,6 +46,11 @@ export class VideoListComponent implements OnInit, OnDestroy {
   titleFading = false;
   previewVisible = true;
 
+  /** Bound to .video-wrapper — drives overlay top-bar and info visibility via CSS. */
+  controlsHidden = false;
+  overlayPlaying = false;
+  plyrFullscreen = false;
+
   private hls: Hls | null = null;
   private overlayHls: Hls | null = null;
   private plyr: Plyr | null = null;
@@ -81,62 +86,63 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.dragCleanups.forEach((fn) => fn());
   }
 
-  private loadVideos(): void {
-    this.videoService.getVideos().subscribe({
-      next: (response) => {
-        if (!response.ok) {
-          this.loadError = true;
-          this.toast.showToastMessage(true, ['Failed to load videos']);
-          return;
-        }
-        this.videos = response.data as Video[];
-        this.newestVideos = this.videoService.getNewestVideos(this.videos);
-
-        const catSet = new Set(
-          this.videos.map((v) => v.category.toLowerCase()),
-        );
-        this.categories = [...catSet].filter((c) => c !== 'newest');
-
-        if (this.videos.length > 0) {
-          this.videoTitle = this.videos[0].title;
-          this.videoDescription = this.videos[0].description;
-          this.currentVideo = this.videos[0].id;
-          this.currentThumbnailUrl = this.videos[0].thumbnail_url;
-          setTimeout(() => {
-            this.loadVideo(this.videos[0].id, '480p');
-            this.initScrollIndicators();
-          }, 0);
-          setTimeout(() => this.initScrollIndicators(), 100);
-        }
-      },
-      error: () => {
-        this.loadError = true;
-        this.toast.showToastMessage(true, ['Failed to load videos']);
-      },
-    });
-  }
-
+  /** Returns videos belonging to the given category. */
   getVideosForCategory(cat: string): Video[] {
     return this.videos.filter((v) => v.category.toLowerCase() === cat);
   }
 
+  private loadVideos(): void {
+    this.videoService.getVideos().subscribe({
+      next: (r) =>
+        r.ok
+          ? this.handleVideosLoaded(r.data as Video[])
+          : this.handleLoadError(),
+      error: () => this.handleLoadError(),
+    });
+  }
+
+  private handleVideosLoaded(videos: Video[]): void {
+    this.videos = videos;
+    this.newestVideos = this.videoService.getNewestVideos(videos);
+    const cats = new Set(videos.map((v) => v.category.toLowerCase()));
+    this.categories = [...cats].filter((c) => c !== 'newest');
+    if (videos.length > 0) this.initFirstVideo(videos[0]);
+  }
+
+  private initFirstVideo(video: Video): void {
+    this.videoTitle = video.title;
+    this.videoDescription = video.description;
+    this.currentVideo = video.id;
+    this.currentThumbnailUrl = video.thumbnail_url;
+    setTimeout(() => {
+      this.loadVideo(video.id, '480p');
+      this.initScrollIndicators();
+    }, 0);
+    setTimeout(() => this.initScrollIndicators(), 100);
+  }
+
+  private handleLoadError(): void {
+    this.loadError = true;
+    this.toast.showToastMessage(true, ['Failed to load videos']);
+  }
+
+  /** Selects a video from the category list and opens the overlay. */
   showVideo(id: number): void {
     this.autoAdvanceStopped = true;
     this.currentVideo = id;
-    // Fade out preview, pause video after fade completes
     this.previewVisible = false;
     if (this.previewTimer) {
       clearTimeout(this.previewTimer);
       this.previewTimer = null;
     }
-    setTimeout(() => {
-      this.videoPlayerRef?.nativeElement?.pause();
-    }, 500);
+    setTimeout(() => this.videoPlayerRef?.nativeElement?.pause(), 500);
     this.openVideoOverlay(id, false);
   }
 
-  // Used for the Newest carousel: show the video in the preview section
-  // without opening the player overlay. The user can then press Play.
+  /**
+   * Loads the given video into the preview section without opening the overlay.
+   * Used for the "Newest" carousel.
+   */
   previewVideo(id: number): void {
     this.autoAdvanceStopped = true;
     if (this.previewTimer) {
@@ -154,20 +160,26 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.loadVideo(id, '480p');
   }
 
+  /** Opens the overlay for the currently previewed video. */
   playVideo(id?: number): void {
-    const targetId = id ?? this.currentVideo;
-    if (targetId == null) return;
-    this.openVideoOverlay(targetId);
+    const target = id ?? this.currentVideo;
+    if (target != null) this.openVideoOverlay(target);
   }
 
-  // ── Preview Player ───────────────────────────────────────────────
+  // ── Preview player ────────────────────────────────────────────────
 
-  private loadVideo(id: number, resolution: string): void {
-    const videoEl = this.videoPlayerRef?.nativeElement;
-    if (!videoEl) return;
+  private loadVideo(id: number, _resolution: string): void {
+    const el = this.videoPlayerRef?.nativeElement;
+    if (!el) return;
+    this.cleanupPreviewPlayer(el);
+    this.attachPreviewListeners(el);
+    const url = this.videos.find((v) => v.id === id)?.preview_clip_url;
+    url ? this.loadPreviewClip(el, url) : this.loadPreviewHls(el, id);
+  }
 
+  private cleanupPreviewPlayer(el: HTMLVideoElement): void {
     if (this.previewEndedListener) {
-      videoEl.removeEventListener('ended', this.previewEndedListener);
+      el.removeEventListener('ended', this.previewEndedListener);
       this.previewEndedListener = null;
     }
     if (this.previewTimer) {
@@ -176,70 +188,63 @@ export class VideoListComponent implements OnInit, OnDestroy {
     }
     this.hls?.destroy();
     this.hls = null;
-
-    // Hide video — thumbnail shows until canplay fires
     this.previewVideoReady = false;
+  }
 
-    // Show video as soon as browser has enough data (even before actually playing)
-    videoEl.addEventListener(
+  private attachPreviewListeners(el: HTMLVideoElement): void {
+    el.addEventListener(
       'canplay',
       () => {
         this.previewVideoReady = true;
       },
       { once: true },
     );
-
-    // Start the auto-advance timer once actually playing
     const startTimer = () => {
-      videoEl.removeEventListener('playing', startTimer);
-      if (this.autoAdvanceStopped) return;
-      if (this.previewTimer) clearTimeout(this.previewTimer);
+      el.removeEventListener('playing', startTimer);
+      if (this.autoAdvanceStopped || this.previewTimer) return;
       this.previewTimer = setTimeout(
         () => this.onPreviewEnded(),
         this.PREVIEW_DURATION_MS,
       );
     };
-    videoEl.addEventListener('playing', startTimer);
-
+    el.addEventListener('playing', startTimer);
     this.previewEndedListener = () => this.onPreviewEnded();
-    videoEl.addEventListener('ended', this.previewEndedListener);
+    el.addEventListener('ended', this.previewEndedListener);
+  }
 
-    const previewUrl = this.videos.find((v) => v.id === id)?.preview_clip_url;
+  private loadPreviewClip(el: HTMLVideoElement, url: string): void {
+    el.muted = true;
+    el.src = url;
+    el.loop = true;
+    el.addEventListener(
+      'loadedmetadata',
+      () => {
+        el.playbackRate = 0.5;
+      },
+      { once: true },
+    );
+    el.load();
+    el.play().catch(() => {});
+  }
 
-    if (previewUrl) {
-      // MP4 preview clip — fast, no HLS overhead
-      videoEl.muted = true;
-      videoEl.src = previewUrl;
-      videoEl.loop = true;
-      videoEl.addEventListener(
+  private loadPreviewHls(el: HTMLVideoElement, id: number): void {
+    this.hls = this.createHlsInstance();
+    this.hls.loadSource(this.videoService.getHlsUrl(id));
+    this.hls.attachMedia(el);
+    this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      el.loop = true;
+      el.addEventListener(
         'loadedmetadata',
         () => {
-          videoEl.playbackRate = 0.5;
+          el.playbackRate = 0.5;
         },
         { once: true },
       );
-      videoEl.load();
-      videoEl.play().catch(() => {});
-    } else {
-      // Fallback: HLS (video has no preview clip yet)
-      this.hls = this.createHlsInstance();
-      this.hls.loadSource(this.videoService.getHlsUrl(id));
-      this.hls.attachMedia(videoEl);
-      this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        videoEl.loop = true;
-        videoEl.addEventListener(
-          'loadedmetadata',
-          () => {
-            videoEl.playbackRate = 0.5;
-          },
-          { once: true },
-        );
-        videoEl.play().catch(() => {});
-      });
-      this.hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (data.fatal) console.error('HLS fatal error:', data);
-      });
-    }
+      el.play().catch(() => {});
+    });
+    this.hls.on(Hls.Events.ERROR, (_e, d) => {
+      if (d.fatal) console.error('HLS fatal error:', d);
+    });
   }
 
   private onPreviewEnded(): void {
@@ -248,369 +253,318 @@ export class VideoListComponent implements OnInit, OnDestroy {
       clearTimeout(this.previewTimer);
       this.previewTimer = null;
     }
-    const idx = this.newestVideos.findIndex((v) => v.id === this.currentVideo);
-    if (idx === -1) return;
-
-    const nextIdx = (idx + 1) % this.newestVideos.length;
-    const nextVideo = this.newestVideos[nextIdx];
-
+    const nextIdx = this.getNextPreviewIndex();
+    if (nextIdx === -1) return;
     this.titleFading = true;
     this.previewVideoReady = false;
     this.thumbnailVisible = false;
-
-    // Swap title and thumbnail after fade-out, then load new video
-    setTimeout(() => {
-      this.videoTitle = nextVideo.title;
-      this.videoDescription = nextVideo.description;
-      this.currentVideo = nextVideo.id;
-      this.currentThumbnailUrl = nextVideo.thumbnail_url;
-      this.thumbnailVisible = true;
-      this.loadVideo(nextVideo.id, '480p');
-
-      // Scroll the newly active thumbnail into view — only horizontal,
-      // never touch the page's vertical scroll position.
-      setTimeout(() => {
-        const newestUl = document.getElementById(
-          'newest',
-        ) as HTMLElement | null;
-        const items = newestUl?.querySelectorAll('li');
-        if (newestUl && items && items[nextIdx]) {
-          const li = items[nextIdx] as HTMLElement;
-          const targetScrollLeft =
-            li.offsetLeft - newestUl.clientWidth / 2 + li.offsetWidth / 2;
-          newestUl.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
-        }
-        if (newestUl) this.updateScrollIndicator(newestUl);
-      }, 50);
-
-      setTimeout(() => {
-        this.titleFading = false;
-      }, 50);
-    }, 500);
+    setTimeout(
+      () => this.transitionToNextVideo(this.newestVideos[nextIdx], nextIdx),
+      500,
+    );
   }
 
-  // ── Overlay ──────────────────────────────────────────────────────
+  private getNextPreviewIndex(): number {
+    const idx = this.newestVideos.findIndex((v) => v.id === this.currentVideo);
+    return idx === -1 ? -1 : (idx + 1) % this.newestVideos.length;
+  }
 
+  private transitionToNextVideo(next: Video, nextIdx: number): void {
+    this.videoTitle = next.title;
+    this.videoDescription = next.description;
+    this.currentVideo = next.id;
+    this.currentThumbnailUrl = next.thumbnail_url;
+    this.thumbnailVisible = true;
+    this.loadVideo(next.id, '480p');
+    setTimeout(() => this.scrollPreviewThumbnailIntoView(nextIdx), 50);
+    setTimeout(() => {
+      this.titleFading = false;
+    }, 50);
+  }
+
+  private scrollPreviewThumbnailIntoView(idx: number): void {
+    const ul = document.getElementById('newest') as HTMLElement | null;
+    const li = ul?.querySelectorAll('li')[idx] as HTMLElement | undefined;
+    if (ul && li) {
+      ul.scrollTo({
+        left: li.offsetLeft - ul.clientWidth / 2 + li.offsetWidth / 2,
+        behavior: 'smooth',
+      });
+    }
+    if (ul) this.updateScrollIndicator(ul);
+  }
+
+  // ── Video overlay ─────────────────────────────────────────────────
+
+  /** Opens the video overlay for the given video ID. */
   openVideoOverlay(videoId: number, autoPlay = true): void {
     const video = this.videos.find((v) => v.id === videoId);
     if (!video) return;
-
     this.overlayOpen = true;
     this.overlayTitle = video.title;
     this.overlayDescription = video.description;
     document.body.classList.add('overlay-open');
     document.body.style.overflow = 'hidden';
     this.hideHeader();
-
-    setTimeout(() => {
-      this.loadVideoInOverlay(videoId, autoPlay);
-    }, 0);
+    setTimeout(() => this.loadVideoInOverlay(videoId, autoPlay), 0);
   }
 
+  /** Closes the video overlay and resumes the preview carousel. */
   closeVideoOverlay(): void {
-    // Destroy players BEFORE setting overlayOpen = false so Angular does not
-    // remove the video element from the DOM while HLS / Plyr still reference it.
-    if (this.overlayHls) {
-      this.overlayHls.destroy();
-      this.overlayHls = null;
-    }
-    if (this.plyr) {
-      this.plyr.destroy();
-      this.plyr = null;
-    }
+    this.destroyOverlayPlayers();
+    this.resetOverlayState();
+    this.resumePreviewPlayer();
+  }
 
-    // Setting this to false triggers @if(overlayOpen) to destroy the <video>
-    // element. A fresh element is created on the next open, avoiding any stale
-    // Plyr / HLS state that would prevent re-initialisation.
+  /** Handles tap on the rotate hint; enters fullscreen when in landscape. */
+  onRotateHintTap(event: Event): void {
+    event.stopPropagation();
+    if (window.matchMedia('(orientation: landscape)').matches)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.plyr as any)?.fullscreen?.enter();
+  }
+
+  private destroyOverlayPlayers(): void {
+    this.overlayHls?.destroy();
+    this.overlayHls = null;
+    this.plyr?.destroy();
+    this.plyr = null;
+  }
+
+  private resetOverlayState(): void {
     this.overlayOpen = false;
+    this.controlsHidden = false;
+    this.overlayPlaying = false;
+    this.plyrFullscreen = false;
     document.body.classList.remove('overlay-open');
     document.body.style.overflow = 'auto';
     this.showHeader();
+  }
 
-    // Resume preview and restart carousel auto-advance
+  private resumePreviewPlayer(): void {
     this.autoAdvanceStopped = false;
     this.thumbnailVisible = true;
     this.previewVisible = true;
-    const previewEl = this.videoPlayerRef?.nativeElement;
-    if (previewEl) {
-      previewEl.play().catch(() => {});
-      if (this.previewTimer) clearTimeout(this.previewTimer);
-      this.previewTimer = setTimeout(
-        () => this.onPreviewEnded(),
-        this.PREVIEW_DURATION_MS,
-      );
-    }
+    const el = this.videoPlayerRef?.nativeElement;
+    if (!el) return;
+    el.play().catch(() => {});
+    if (this.previewTimer) clearTimeout(this.previewTimer);
+    this.previewTimer = setTimeout(
+      () => this.onPreviewEnded(),
+      this.PREVIEW_DURATION_MS,
+    );
   }
 
-  // Tap auf den Rotate-Hinweis: im Querformat Fullscreen starten
-  onRotateHintTap(event: Event): void {
-    event.stopPropagation();
-    if (window.matchMedia('(orientation: landscape)').matches) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.plyr as any)?.fullscreen?.enter();
-    }
-  }
-
-  private loadVideoInOverlay(id: number, autoPlay = true): void {
-    // Use getElementById instead of @ViewChild to always get the live DOM node,
-    // even if Plyr has moved the element inside its wrapper during a previous session.
-    const overlayEl = document.getElementById(
+  private loadVideoInOverlay(id: number, autoPlay: boolean): void {
+    const el = document.getElementById(
       'overlayVideo',
     ) as HTMLVideoElement | null;
-    if (!overlayEl) return;
-
-    if (this.plyr) {
-      this.plyr.destroy();
-      this.plyr = null;
-    }
-    if (this.overlayHls) {
-      this.overlayHls.destroy();
-      this.overlayHls = null;
-    }
-
-    // Fully reset the media element before HLS attaches via MediaSource Extensions.
-    // Setting src='' would cause a failed network load; removeAttribute+load() resets
-    // to NETWORK_EMPTY / HAVE_NOTHING which is what HLS.js requires.
-    overlayEl.removeAttribute('src');
-    overlayEl.load();
-
+    if (!el) return;
+    this.destroyOverlayPlayers();
+    el.removeAttribute('src');
+    el.load();
     this.overlayHls = this.createHlsInstance();
-    const url = this.videoService.getHlsUrl(id);
-    this.overlayHls.loadSource(url);
-    this.overlayHls.attachMedia(overlayEl);
-
-    this.overlayHls.on(Hls.Events.MANIFEST_PARSED, () => {
-      const hls = this.overlayHls!;
-      // Heights descending (1080, 720, 480) + 0 for Auto
-      const heights = hls.levels.map((l) => l.height).reverse();
-      heights.push(0);
-
-      this.plyr = new Plyr(overlayEl, {
-        controls: [
-          'play',
-          'progress',
-          'current-time',
-          'mute',
-          'volume',
-          'settings',
-          'pip',
-          'fullscreen',
-        ],
-        clickToPlay: false,
-        settings: ['quality'],
-        quality: {
-          default: 0,
-          options: heights,
-          forced: true,
-          onChange: (newQuality: number) => {
-            if (newQuality === 0) {
-              hls.currentLevel = -1;
-            } else {
-              const idx = hls.levels.findIndex((l) => l.height === newQuality);
-              if (idx !== -1) hls.currentLevel = idx;
-            }
-          },
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        i18n: { qualityLabel: { 0: 'Auto' } } as any,
-      });
-
-      // Inject top bar and info-overlay into the Plyr container.
-      // setTimeout 0 ensures Plyr has created its .plyr wrapper in the DOM.
-      setTimeout(() => {
-        const plyrEl = overlayEl.closest('.plyr') as HTMLElement | null;
-        if (plyrEl && !plyrEl.querySelector('.overlay-top-bar')) {
-          // ── Top bar: zentrierter Titel + X-Button rechts ──────────
-          const topBar = document.createElement('div');
-          topBar.className = 'overlay-top-bar';
-
-          const titleEl = document.createElement('span');
-          titleEl.className = 'overlay-top-title';
-          titleEl.textContent = this.overlayTitle;
-
-          const closeBtn = document.createElement('button');
-          closeBtn.className = 'plyr__control overlay-close-btn';
-          closeBtn.setAttribute('aria-label', 'Schließen');
-          closeBtn.setAttribute('type', 'button');
-          closeBtn.innerHTML =
-            '<svg aria-hidden="true" focusable="false" viewBox="0 0 18 18">' +
-            '<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9' +
-            'l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"' +
-            ' fill="currentColor"/></svg>';
-          closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.closeVideoOverlay();
-          });
-
-          topBar.appendChild(titleEl);
-          topBar.appendChild(closeBtn);
-          plyrEl.appendChild(topBar);
-
-          // ── Info-Overlay: Titel + Beschreibung (mitte links) ──────
-          const infoOverlay = document.createElement('div');
-          infoOverlay.className = 'overlay-info';
-
-          const infoTitle = document.createElement('span');
-          infoTitle.className = 'overlay-info-title';
-          infoTitle.textContent = this.overlayTitle;
-
-          const infoDesc = document.createElement('span');
-          infoDesc.className = 'overlay-info-description';
-          infoDesc.textContent = this.overlayDescription;
-
-          infoOverlay.appendChild(infoTitle);
-          if (this.overlayDescription) infoOverlay.appendChild(infoDesc);
-          plyrEl.appendChild(infoOverlay);
-
-          // Click on video area (not on controls/custom elements) → play/pause
-          const videoWrapper = plyrEl.querySelector<HTMLElement>(
-            '.plyr__video-wrapper',
-          );
-          if (videoWrapper) {
-            videoWrapper.addEventListener('click', (e) => {
-              e.stopPropagation();
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (this.plyr as any)?.togglePlay?.();
-            });
-          }
-        }
-      }, 0);
-
-      if (autoPlay) {
-        setTimeout(() => {
-          this.plyr?.play();
-        }, 2000);
-      }
-    });
-
-    this.overlayHls.on(Hls.Events.ERROR, (_event, data) => {
-      if (data.fatal) console.error('HLS overlay fatal error:', data);
+    this.overlayHls.loadSource(this.videoService.getHlsUrl(id));
+    this.overlayHls.attachMedia(el);
+    this.overlayHls.on(Hls.Events.MANIFEST_PARSED, () =>
+      this.onOverlayHlsReady(el, autoPlay),
+    );
+    this.overlayHls.on(Hls.Events.ERROR, (_e, d) => {
+      if (d.fatal) console.error('HLS overlay error:', d);
     });
   }
 
+  private onOverlayHlsReady(el: HTMLVideoElement, autoPlay: boolean): void {
+    this.plyr = this.createPlyrInstance(el, this.overlayHls!);
+    setTimeout(() => {
+      this.trackPlyrState();
+      this.attachVideoClickHandler();
+    }, 0);
+    if (autoPlay) setTimeout(() => this.plyr?.play(), 2000);
+  }
+
+  private createPlyrInstance(el: HTMLVideoElement, hls: Hls): Plyr {
+    const heights = hls.levels.map((l) => l.height).reverse();
+    heights.push(0);
+    return new Plyr(el, {
+      controls: [
+        'play',
+        'progress',
+        'current-time',
+        'mute',
+        'volume',
+        'settings',
+        'pip',
+        'fullscreen',
+      ],
+      clickToPlay: false,
+      settings: ['quality'],
+      fullscreen: { container: '.video-wrapper' },
+      quality: {
+        default: 0,
+        options: heights,
+        forced: true,
+        onChange: (q: number) => this.onQualityChange(q, hls),
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      i18n: { qualityLabel: { 0: 'Auto' } } as any,
+    });
+  }
+
+  private onQualityChange(quality: number, hls: Hls): void {
+    hls.currentLevel =
+      quality === 0 ? -1 : hls.levels.findIndex((l) => l.height === quality);
+  }
+
+  private trackPlyrState(): void {
+    if (!this.plyr) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p = this.plyr as any;
+    p.on('controlshidden', () => {
+      this.controlsHidden = true;
+    });
+    p.on('controlsshown', () => {
+      this.controlsHidden = false;
+    });
+    p.on('playing', () => {
+      this.overlayPlaying = true;
+    });
+    p.on('pause', () => {
+      this.overlayPlaying = false;
+    });
+    p.on('enterfullscreen', () => {
+      this.plyrFullscreen = true;
+    });
+    p.on('exitfullscreen', () => {
+      this.plyrFullscreen = false;
+    });
+  }
+
+  private attachVideoClickHandler(): void {
+    const wrapper = document.querySelector<HTMLElement>('.plyr__video-wrapper');
+    if (!wrapper) return;
+    wrapper.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.plyr as any)?.togglePlay?.();
+    });
+  }
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && this.overlayOpen) {
-      this.closeVideoOverlay();
-    }
+    if (event.key === 'Escape' && this.overlayOpen) this.closeVideoOverlay();
   }
 
-  // ── Header hide/show ─────────────────────────────────────────────
+  // ── Header hide / show ────────────────────────────────────────────
 
   private hideHeader(): void {
-    const header = document.querySelector('.main_header') as HTMLElement;
-    if (header) {
-      header.style.transform = 'translateY(-100%)';
-      header.style.opacity = '0';
-      header.style.transition =
-        'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
-    }
+    const header = document.querySelector<HTMLElement>('.main_header');
+    if (!header) return;
+    header.style.transform = 'translateY(-100%)';
+    header.style.opacity = '0';
+    header.style.transition =
+      'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
   }
 
   private showHeader(): void {
-    const header = document.querySelector('.main_header') as HTMLElement;
-    if (header) {
-      header.style.transform = 'translateY(0)';
-      header.style.opacity = '1';
-      header.style.transition =
-        'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
-    }
+    const header = document.querySelector<HTMLElement>('.main_header');
+    if (!header) return;
+    header.style.transform = 'translateY(0)';
+    header.style.opacity = '1';
+    header.style.transition =
+      'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
   }
 
-  // ── Scroll indicators ────────────────────────────────────────────
+  // ── Scroll indicators ─────────────────────────────────────────────
 
   private initScrollIndicators(): void {
-    const lists = document.querySelectorAll('.video_list ul');
-    lists.forEach((list) => {
+    document.querySelectorAll('.video_list ul').forEach((list) => {
       const ul = list as HTMLElement;
       if (this.initializedLists.has(ul)) return;
       this.initializedLists.add(ul);
-      this.updateScrollIndicator(ul);
-
-      if (window.ResizeObserver) {
-        const ro = new ResizeObserver(() => this.updateScrollIndicator(ul));
-        ro.observe(ul);
-        if (ul.parentElement) ro.observe(ul.parentElement);
-        this.resizeObservers.push(ro);
-      }
-
-      const resizeFn = (): void => {
-        setTimeout(() => this.updateScrollIndicator(ul), 100);
-      };
-      window.addEventListener('resize', resizeFn);
-      this.resizeListeners.push(resizeFn);
-
-      ul.addEventListener('scroll', () => this.updateScrollIndicator(ul));
-
-      // ── Mouse drag-to-scroll (desktop) ──────────────────────────
-      let isDown = false;
-      let startX = 0;
-      let scrollStart = 0;
-      let hasDragged = false;
-
-      const onMouseDown = (e: MouseEvent) => {
-        // Only react to left mouse button
-        if (e.button !== 0) return;
-        e.preventDefault(); // prevent native image drag
-        isDown = true;
-        hasDragged = false;
-        startX = e.clientX;
-        scrollStart = ul.scrollLeft;
-        ul.style.cursor = 'grabbing';
-        document.body.style.userSelect = 'none';
-      };
-
-      // Listen on document so dragging outside the ul still works
-      const onDocMouseMove = (e: MouseEvent) => {
-        if (!isDown) return;
-        const dx = e.clientX - startX;
-        if (Math.abs(dx) > 4) hasDragged = true;
-        ul.scrollLeft = scrollStart - dx;
-      };
-
-      const onDocMouseUp = () => {
-        if (!isDown) return;
-        isDown = false;
-        ul.style.cursor = '';
-        document.body.style.userSelect = '';
-      };
-
-      // Suppress click on child elements when the user was dragging
-      const onClickCapture = (e: MouseEvent) => {
-        if (hasDragged) {
-          e.stopPropagation();
-          hasDragged = false;
-        }
-      };
-
-      // Prevent browser native image/text drag from hijacking mousemove
-      const onDragStart = (e: DragEvent) => e.preventDefault();
-
-      ul.addEventListener('mousedown', onMouseDown);
-      ul.addEventListener('dragstart', onDragStart);
-      ul.addEventListener('click', onClickCapture, true);
-      document.addEventListener('mousemove', onDocMouseMove);
-      document.addEventListener('mouseup', onDocMouseUp);
-
-      this.dragCleanups.push(() => {
-        ul.removeEventListener('mousedown', onMouseDown);
-        ul.removeEventListener('dragstart', onDragStart);
-        ul.removeEventListener('click', onClickCapture, true);
-        document.removeEventListener('mousemove', onDocMouseMove);
-        document.removeEventListener('mouseup', onDocMouseUp);
-      });
+      this.setupScrollListeners(ul);
+      this.setupDragScroll(ul);
     });
   }
 
+  private setupScrollListeners(ul: HTMLElement): void {
+    this.updateScrollIndicator(ul);
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(() => this.updateScrollIndicator(ul));
+      ro.observe(ul);
+      if (ul.parentElement) ro.observe(ul.parentElement);
+      this.resizeObservers.push(ro);
+    }
+    const fn = () => setTimeout(() => this.updateScrollIndicator(ul), 100);
+    window.addEventListener('resize', fn);
+    this.resizeListeners.push(fn);
+    ul.addEventListener('scroll', () => this.updateScrollIndicator(ul));
+  }
+
+  private setupDragScroll(ul: HTMLElement): void {
+    this.dragCleanups.push(this.createDragHandlers(ul));
+  }
+
+  /**
+   * Registers mouse drag-to-scroll handlers on the given list element.
+   * Returns a cleanup function that removes all added listeners.
+   * Note: exceeds 14 lines due to shared closure state across handlers.
+   */
+  private createDragHandlers(ul: HTMLElement): () => void {
+    let isDown = false,
+      startX = 0,
+      scrollStart = 0,
+      hasDragged = false;
+    const down = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      isDown = true;
+      hasDragged = false;
+      startX = e.clientX;
+      scrollStart = ul.scrollLeft;
+      ul.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
+    };
+    const move = (e: MouseEvent) => {
+      if (!isDown) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) hasDragged = true;
+      ul.scrollLeft = scrollStart - dx;
+    };
+    const up = () => {
+      if (!isDown) return;
+      isDown = false;
+      ul.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    const click = (e: MouseEvent) => {
+      if (hasDragged) {
+        e.stopPropagation();
+        hasDragged = false;
+      }
+    };
+    const drag = (e: DragEvent) => e.preventDefault();
+    ul.addEventListener('mousedown', down);
+    ul.addEventListener('dragstart', drag);
+    ul.addEventListener('click', click, true);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+    return () => {
+      ul.removeEventListener('mousedown', down);
+      ul.removeEventListener('dragstart', drag);
+      ul.removeEventListener('click', click, true);
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+    };
+  }
+
   private updateScrollIndicator(container: HTMLElement): void {
-    const scrollWrapper = container.closest('.scroll-wrapper');
-    if (!scrollWrapper) return;
+    const wrapper = container.closest('.scroll-wrapper');
+    if (!wrapper) return;
     const hasRight =
       Math.ceil(container.scrollLeft) + container.clientWidth <
       container.scrollWidth - 1;
-    const hasLeft = container.scrollLeft > 1;
-    scrollWrapper.classList.toggle('has-overflow-right', hasRight);
-    scrollWrapper.classList.toggle('has-overflow-left', hasLeft);
+    wrapper.classList.toggle('has-overflow-right', hasRight);
+    wrapper.classList.toggle('has-overflow-left', container.scrollLeft > 1);
   }
 
   // ── HLS factory ──────────────────────────────────────────────────

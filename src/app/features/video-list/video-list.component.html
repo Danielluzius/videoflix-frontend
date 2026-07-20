@@ -55,7 +55,25 @@
         <div class="rotate-hint" (click)="onRotateHintTap($event)">
             <img src="/assets/img/rotate_device.gif" alt="" class="rotate-gif">
         </div>
-        <div class="video-wrapper" (click)="$event.stopPropagation()">
+        <div class="video-wrapper" [class.controls-hidden]="controlsHidden" [class.overlay-playing]="overlayPlaying"
+            [class.overlay-fullscreen]="plyrFullscreen" (click)="$event.stopPropagation()">
+            <div class="overlay-top-bar">
+                <span class="overlay-top-title">{{ overlayTitle }}</span>
+                <button type="button" class="plyr__control overlay-close-btn" aria-label="Close"
+                    (click)="closeVideoOverlay()">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 18 18">
+                        <path
+                            d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
+                            fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+            <div class="overlay-info">
+                <span class="overlay-info-title">{{ overlayTitle }}</span>
+                @if (overlayDescription) {
+                <span class="overlay-info-description">{{ overlayDescription }}</span>
+                }
+            </div>
             <video #overlayVideo id="overlayVideo"></video>
         </div>
     </div>

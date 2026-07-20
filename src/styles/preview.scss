@@ -1,0 +1,120 @@
+.main_header {
+  z-index: 1;
+}
+
+app-video-list main {
+  z-index: 0;
+  position: relative;
+  padding: 0 !important;
+}
+
+.preview_section {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  left: 50%;
+  margin-left: -50vw;
+  height: 55vh;
+  min-height: 400px;
+  max-height: 600px;
+  transition: opacity 0.5s ease;
+}
+
+.preview_section.preview-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preview_section_video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.preview-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+
+.preview-thumb.thumb-hidden {
+  opacity: 0;
+}
+
+.preview_section_video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.preview_section_video video.video-ready {
+  opacity: 1;
+}
+
+.preview_section_video_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 20, 20, 1) 0%,
+    rgba(20, 20, 20, 0.4) 50%,
+    rgba(20, 20, 20, 1) 100%
+  );
+  z-index: 1;
+}
+
+.preview_section_content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  padding: 0 max(clamp(16px, 4vw, 48px), calc(50% - 720px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(12px, 2.5vw, 32px);
+}
+
+.preview_title {
+  font-size: clamp(28px, 5.5vw, 88px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview_description {
+  font-size: 16px;
+  color: #ffffff;
+  margin: 0;
+  max-width: 440px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

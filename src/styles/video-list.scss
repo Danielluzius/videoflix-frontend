@@ -1,425 +1,3 @@
-.main_header {
-  z-index: 1;
-}
-
-app-video-list main {
-  z-index: 0;
-  position: relative;
-  padding: 0 !important;
-}
-
-.preview_section {
-  position: relative;
-  z-index: 0;
-  width: 100%;
-  left: 50%;
-  margin-left: -50vw;
-  height: 55vh;
-  min-height: 400px;
-  max-height: 600px;
-  transition: opacity 0.5s ease;
-}
-
-.preview_section.preview-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.preview_section_video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-}
-
-// Thumbnail placeholder — always visible, sits beneath the video
-.preview-thumb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  transition: opacity 0.5s ease;
-}
-
-.preview-thumb.thumb-hidden {
-  opacity: 0;
-}
-
-// Video starts transparent; fades in once canplay fires (.video-ready class)
-.preview_section_video video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.preview_section_video video.video-ready {
-  opacity: 1;
-}
-
-.preview_section_video_overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 20, 20, 1) 0%,
-    rgba(20, 20, 20, 0.4) 50%,
-    rgba(20, 20, 20, 1) 100%
-  );
-  z-index: 1;
-}
-
-.preview_section_content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  padding: 0 max(clamp(16px, 4vw, 48px), calc(50% - 720px));
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(12px, 2.5vw, 32px);
-}
-
-.preview_title {
-  font-size: clamp(28px, 5.5vw, 88px);
-  font-weight: 700;
-  line-height: 1.25;
-  color: #ffffff;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preview_description {
-  font-size: 16px;
-  color: #ffffff;
-  margin: 0;
-  max-width: 440px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.video-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 10;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.video-overlay.open {
-  display: flex;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-}
-
-@supports not (backdrop-filter: blur(10px)) {
-  .video-overlay {
-    background-color: rgba(0, 0, 0, 0.95);
-  }
-}
-
-// ── Querformat-Hinweis (Hochformat auf Mobilgeräten) ─────────────
-
-.rotate-hint {
-  display: none;
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  color: white;
-  pointer-events: auto;
-}
-
-.rotate-hint p {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-.rotate-gif {
-  width: 80%;
-  height: auto;
-  max-height: 80vh;
-  object-fit: contain;
-}
-
-// Show on mobile in portrait
-@media screen and (max-width: 768px) and (orientation: portrait) {
-  .video-overlay.open .rotate-hint {
-    display: flex;
-    background: #000;
-  }
-}
-
-.close-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  font-weight: bold;
-  z-index: 10;
-}
-
-.close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.05);
-}
-
-.video-wrapper {
-  width: 80%;
-  max-width: 960px;
-  background-color: #000;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: default;
-}
-
-.video-wrapper video {
-  width: 100%;
-  height: 100%;
-  max-height: 70vh;
-  background-color: black;
-  border-radius: 8px;
-  object-fit: contain;
-}
-
-// ── Overlay top bar (titel zentriert + X-Button rechts) ─────────────────
-
-.overlay-top-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 4px 4px;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.75) 0%,
-    transparent 100%
-  );
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
-  pointer-events: auto;
-}
-
-// Synchron mit Plyr-Controls ausblenden
-.plyr--hide-controls .overlay-top-bar {
-  opacity: 0;
-  transform: translateY(-8px);
-  pointer-events: none;
-}
-
-.overlay-top-title {
-  grid-column: 2;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: opacity 0.4s ease;
-}
-
-// Titel oben ausblenden wenn pausiert — info-overlay übernimmt
-.plyr--paused .overlay-top-title {
-  opacity: 0;
-}
-
-// X-Button: genau wie Plyr-Controls gestylt (nutzt .plyr__control)
-.overlay-close-btn {
-  grid-column: 3;
-  justify-self: end;
-  margin-right: 4px;
-}
-
-.overlay-close-btn svg {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
-// ── Info-Overlay (Titel + Beschreibung, mitte links, nur bei Pause) ─────
-
-.overlay-info {
-  position: absolute;
-  left: clamp(32px, 6%, 64px);
-  top: clamp(35%, 40%, 45%);
-  transform: translateY(-50%);
-  z-index: 5;
-  min-width: clamp(240px, 28%, 400px);
-  max-width: 45%;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-
-// Nur sichtbar wenn pausiert / noch nicht gestartet
-.plyr--playing .overlay-info {
-  opacity: 0;
-}
-
-.overlay-info-title {
-  display: block;
-  font-size: clamp(1.1rem, 2.5vw, 1.9rem);
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.overlay-info-description {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  font-size: clamp(0.82rem, 1.3vw, 1.1rem);
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-  line-height: 1.5;
-}
-
-// Fullscreen: nochmal größere Schrift da der Viewport der volle Bildschirm ist
-.plyr:fullscreen .overlay-info-title,
-.plyr:-webkit-full-screen .overlay-info-title {
-  font-size: clamp(1.8rem, 3vw, 3.5rem);
-}
-
-.plyr:fullscreen .overlay-info-description,
-.plyr:-webkit-full-screen .overlay-info-description {
-  font-size: clamp(1rem, 1.4vw, 1.6rem);
-}
-
-// Video leicht abdunkeln wenn pausiert oder noch nicht gestartet
-.video-overlay .plyr--video.plyr--paused .plyr__video-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-}
-
-// In fullscreen the 70vh cap must be lifted so the video fills the screen.
-// Use native :fullscreen pseudo-class (Plyr toggles this on the wrapper element).
-.plyr:-webkit-full-screen,
-.plyr:fullscreen {
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 0 !important;
-}
-
-.plyr:-webkit-full-screen .plyr__video-wrapper,
-.plyr:fullscreen .plyr__video-wrapper {
-  // Override Plyr's padding-bottom 16:9 trick — in fullscreen just fill
-  padding-bottom: 0 !important;
-  height: 100% !important;
-}
-
-.plyr:-webkit-full-screen video,
-.plyr:fullscreen video {
-  max-height: 100vh !important;
-  height: 100% !important;
-  object-fit: contain;
-  border-radius: 0 !important;
-}
-
-.overlay-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  z-index: 10;
-  justify-content: center;
-}
-
-.overlay-controls select {
-  padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  background-color: rgba(40, 40, 40, 0.9);
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.overlay-controls select:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(60, 60, 60, 0.9);
-}
-
-.overlay-controls select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
-}
-
-.overlay-controls label {
-  font-size: 1rem;
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
 @media screen and (max-width: 1024px) {
   .video_list ul > li {
     height: 96px;
@@ -440,9 +18,6 @@ app-video-list main {
   .video_list img {
     height: 80px;
   }
-  .overlay-top-title {
-    font-size: 1.2rem;
-  }
 }
 
 @media screen and (max-width: 480px) {
@@ -458,26 +33,6 @@ app-video-list main {
   }
   .video_list img {
     height: 72px;
-  }
-
-  .overlay-top-bar {
-    padding: 10px 14px;
-  }
-
-  .overlay-top-title {
-    font-size: 1rem;
-  }
-
-  .overlay-controls {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-  }
-
-  .close-btn {
-    font-size: 1.2rem;
-    padding: 8px 12px;
   }
 }
 
@@ -514,9 +69,9 @@ app-video-list main {
   position: relative;
 }
 
-// Border-Overlay: sitzt als absolute Schicht über dem Thumbnail.
-// Durch den fehlenden border am li beträgt der innere Clip-Radius
-// von overflow:hidden genau 4px — identisch mit dem Overlay-border-radius.
+// Border overlay: absolute layer above the thumbnail.
+// The missing border on li means overflow:hidden clips at exactly 4px,
+// matching the overlay border-radius.
 .video_list ul > li::before {
   content: "";
   position: absolute;
@@ -568,7 +123,7 @@ app-video-list main {
   position: relative;
   z-index: 0;
 
-  // Den normalen ::before-Indikator ausblenden — der ::after-Farbverlauf übernimmt
+  // Hide the ::before border — the gradient ::after takes over
   &::before {
     border-color: transparent;
   }
@@ -606,7 +161,7 @@ app-video-list main {
   overflow: hidden;
 }
 
-// Sanfter Schattenverlauf — links und rechts, nur wenn Inhalt abgeschnitten
+// Soft fade shadow on left and right edges, only when content is clipped
 .scroll-wrapper::before,
 .scroll-wrapper::after {
   content: "";
@@ -659,9 +214,8 @@ app-video-list main {
   display: none;
 }
 
-// Auf kleinen Bildschirmen wird der Gradient nicht ausgeblendet, sondern
-// über die Breakpoint-Regeln proportional schmaler — er bleibt sichtbar
-// aber dominiert nicht mehr mehrere Thumbnails.
+// On small screens the gradient stays visible but scales narrower
+// via breakpoint rules — it doesn't dominate multiple thumbnails.
 
 .video_list ul img {
   display: block;
@@ -675,38 +229,6 @@ app-video-list main {
   justify-content: center;
   align-items: center;
   color: #f44336;
-}
-
-// ── Plyr player theme overrides ──────────────────────────────────
-
-.video-wrapper {
-  // Plyr fills the full wrapper
-  .plyr {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-    background: #000;
-  }
-
-  // Accent color: match app brand blue
-  .plyr--video .plyr__control:hover,
-  .plyr--video .plyr__control[aria-expanded="true"],
-  .plyr--video
-    .plyr__menu__container
-    .plyr__control[role="menuitemradio"][aria-checked="true"]::before {
-    background: #2e3edf;
-  }
-
-  .plyr--full-ui input[type="range"] {
-    color: #2e3edf;
-  }
-
-  // Quality label in settings menu
-  .plyr__menu__container {
-    background: rgba(18, 18, 18, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(6px);
-  }
 }
 
 // ── Category scroll buttons ──────────────────────────────────────
@@ -755,19 +277,6 @@ app-video-list main {
 
 .scroll-wrapper.has-overflow-right .scroll-btn-right {
   display: flex;
-}
-
-#overlayTitle {
-  animation: fadeOut 5s ease-in-out forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
 }
 
 // On the video-list page the footer links should be right-aligned inside the
