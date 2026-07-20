@@ -11,14 +11,14 @@ Dieses Projekt wurde im Rahmen des Developer Akademie Lehrplans entwickelt.
 
 ## Tech Stack
 
-| Technologie | Version | Zweck                                                    |
-| ----------- | ------- | -------------------------------------------------------- |
-| Angular     | 19.2    | SPA-Framework (Standalone Components, Signals)           |
-| TypeScript  | 5.7     | Programmiersprache                                       |
-| SCSS        | —       | Styling                                                  |
-| hls.js      | 1.6.16  | Adaptives HLS-Streaming                                  |
-| Plyr        | 3.8.4   | Video-Player-Oberfläche                                  |
-| RxJS        | 7.8     | Reaktiver State & HTTP                                   |
+| Technologie | Version | Zweck                                          |
+| ----------- | ------- | ---------------------------------------------- |
+| Angular     | 19.2    | SPA-Framework (Standalone Components, Signals) |
+| TypeScript  | 5.7     | Programmiersprache                             |
+| SCSS        | —       | Styling                                        |
+| hls.js      | 1.6.16  | Adaptives HLS-Streaming                        |
+| Plyr        | 3.8.4   | Video-Player-Oberfläche                        |
+| RxJS        | 7.8     | Reaktiver State & HTTP                         |
 
 ---
 
@@ -53,11 +53,11 @@ Die App ist dann erreichbar unter `http://localhost:4200/`. Änderungen werden a
 
 API-URL und HLS-Parameter werden in `src/environments/environment.ts` (Entwicklung) und `src/environments/environment.prod.ts` (Produktion) konfiguriert.
 
-| Schlüssel       | Standardwert                 | Beschreibung                               |
-| --------------- | ---------------------------- | ------------------------------------------ |
-| `apiBaseUrl`    | `http://localhost:8000/api/` | Basis-URL der Backend-REST-API             |
+| Schlüssel       | Standardwert                 | Beschreibung                                   |
+| --------------- | ---------------------------- | ---------------------------------------------- |
+| `apiBaseUrl`    | `http://localhost:8000/api/` | Basis-URL der Backend-REST-API                 |
 | `toastDuration` | `2000`                       | Anzeigedauer von Toast-Benachrichtigungen (ms) |
-| `hls.*`         | verschiedene                 | HLS.js-Player-Tuning-Optionen              |
+| `hls.*`         | verschiedene                 | HLS.js-Player-Tuning-Optionen                  |
 
 ---
 
@@ -92,17 +92,17 @@ src/
 
 ## Seiten
 
-| Route                    | Beschreibung                                        | Guard      |
-| ------------------------ | --------------------------------------------------- | ---------- |
+| Route                    | Beschreibung                                         | Guard      |
+| ------------------------ | ---------------------------------------------------- | ---------- |
 | `/`                      | Startseite mit Login/Registrierungs-Einstiegspunkten | guestGuard |
-| `/auth/login`            | Login-Formular                                      | guestGuard |
-| `/auth/register`         | Registrierungsformular                              | guestGuard |
-| `/auth/activate`         | Kontoaktivierung über E-Mail-Link                   | —          |
-| `/auth/forgot-password`  | Passwort-Reset-E-Mail anfordern                     | —          |
-| `/auth/confirm-password` | Neues Passwort über E-Mail-Link setzen              | —          |
-| `/videos`                | Videos durchsuchen, Vorschau-Karussell, HLS-Player  | authGuard  |
-| `/privacy`               | Datenschutzerklärung                                | —          |
-| `/imprint`               | Impressum                                           | —          |
+| `/auth/login`            | Login-Formular                                       | guestGuard |
+| `/auth/register`         | Registrierungsformular                               | guestGuard |
+| `/auth/activate`         | Kontoaktivierung über E-Mail-Link                    | —          |
+| `/auth/forgot-password`  | Passwort-Reset-E-Mail anfordern                      | —          |
+| `/auth/confirm-password` | Neues Passwort über E-Mail-Link setzen               | —          |
+| `/videos`                | Videos durchsuchen, Vorschau-Karussell, HLS-Player   | authGuard  |
+| `/privacy`               | Datenschutzerklärung                                 | —          |
+| `/imprint`               | Impressum                                            | —          |
 
 ---
 
