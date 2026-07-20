@@ -18,6 +18,7 @@ export interface ApiResponse<T = unknown> {
 export class ApiService {
   private http = inject(HttpClient);
 
+  /** Sends a POST request and normalises the response into an ApiResponse object. */
   post<T = unknown>(
     endpoint: string,
     data: unknown,
@@ -50,6 +51,7 @@ export class ApiService {
       );
   }
 
+  /** Sends a GET request and normalises the response into an ApiResponse object. */
   get<T = unknown>(endpoint: string): Observable<ApiResponse<T>> {
     return this.http
       .get<T>(`${environment.apiBaseUrl}${endpoint}`, { observe: 'response' })

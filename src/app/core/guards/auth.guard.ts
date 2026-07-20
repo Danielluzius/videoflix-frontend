@@ -4,6 +4,7 @@ import { map, catchError, of } from 'rxjs';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 
+/** Redirects to /auth/login if no local auth state exists; verifies session with the API if locally authenticated. */
 export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const api = inject(ApiService);

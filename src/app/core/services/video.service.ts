@@ -17,10 +17,12 @@ export interface Video {
 export class VideoService {
   private api = inject(ApiService);
 
+  /** Fetches the full video catalogue from the API. */
   getVideos(): Observable<ApiResponse> {
     return this.api.get('video/');
   }
 
+  /** Returns up to 10 most recently created videos that have a preview clip. */
   getNewestVideos(videos: Video[]): Video[] {
     return videos
       .filter((v) => v.preview_clip_url)
@@ -31,6 +33,7 @@ export class VideoService {
       .slice(0, 10);
   }
 
+  /** Returns the HLS master playlist URL for the given video ID. */
   getHlsUrl(id: number): string {
     return `${environment.apiBaseUrl}video/${id}/master.m3u8`;
   }

@@ -16,10 +16,12 @@ export class ToastService {
 
   readonly toast$ = new Subject<ToastItem>();
 
+  /** Emits a toast notification on the toast$ stream. */
   showToastMessage(error: boolean = true, msg: string[] = []): void {
     this.toast$.next({ id: ++this.toastCounter, error, messages: msg });
   }
 
+  /** Emits a toast notification and navigates to redirectUrl after a delay. */
   showToastAndRedirect(
     error: boolean = true,
     msg: string[] = [],
@@ -34,6 +36,7 @@ export class ToastService {
     }
   }
 
+  /** Recursively extracts all string error values from a nested API error object. */
   extractErrorMessages(errorObject: unknown): string[] {
     let errorMessages: string[] = [];
     if (typeof errorObject !== 'object' || errorObject === null) {

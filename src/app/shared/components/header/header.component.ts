@@ -27,6 +27,7 @@ export class HeaderComponent {
     { initialValue: this.router.url },
   );
 
+  /** Returns the router link destination for the logo based on the current route. */
   logoLink(): string {
     const url = this.currentUrl();
     if (url === '/') return '/';
@@ -34,6 +35,7 @@ export class HeaderComponent {
     return '/auth/login';
   }
 
+  /** Returns true if the login button should be visible on the current route. */
   showLoginBtn(): boolean {
     const url = this.currentUrl();
     return (
@@ -44,21 +46,25 @@ export class HeaderComponent {
     );
   }
 
+  /** Returns true if the sign-up button should be visible on the current route. */
   showSignUpBtn(): boolean {
     const url = this.currentUrl();
     return url === '/auth/login';
   }
 
+  /** Returns true if the logout button should be visible on the current route. */
   showLogoutBtn(): boolean {
     const url = this.currentUrl();
     return url.startsWith('/videos');
   }
 
+  /** Returns true if the back button should be shown (privacy and imprint pages). */
   showBackBtn(): boolean {
     const url = this.currentUrl();
     return url === '/privacy' || url === '/imprint';
   }
 
+  /** Navigates back using browser history, or falls back to the login page. */
   goBack(): void {
     if (document.referrer && document.referrer !== window.location.href) {
       window.history.back();
@@ -67,6 +73,7 @@ export class HeaderComponent {
     }
   }
 
+  /** Calls the logout endpoint and redirects to the login page. */
   logout(): void {
     this.authService.logout().subscribe((response) => {
       if (response.status === 'error') {
