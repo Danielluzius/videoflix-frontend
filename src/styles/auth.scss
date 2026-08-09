@@ -94,7 +94,7 @@
   max-width: 780px;
   width: 100%;
   margin: 0 auto;
-  padding: 48px max(clamp(16px, 4vw, 48px), 16px);
+  padding: 48px max(clamp(16px, 4vw, 48px), 16px) !important;
   display: flex;
   flex-direction: column;
   gap: 40px;

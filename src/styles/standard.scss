@@ -84,7 +84,7 @@ main {
 }
 
 @media only screen and (min-width: 1440px) {
-  main:not(.legal-page) {
+  main {
     padding-left: max(48px, calc(50% - 720px)) !important;
     padding-right: max(48px, calc(50% - 720px)) !important;
   }
