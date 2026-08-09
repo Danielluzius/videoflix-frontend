@@ -2,7 +2,7 @@
     <section class="preview_section" [class.preview-hidden]="!previewVisible">
         <div class="preview_section_video">
             <img class="preview-thumb" [class.thumb-hidden]="!thumbnailVisible" [src]="currentThumbnailUrl" alt="">
-            <video #videoPlayer autoplay muted id="videoPlayer" [class.video-ready]="previewVideoReady"></video>
+            <video #videoPlayer autoplay muted playsinline id="videoPlayer" [class.video-ready]="previewVideoReady"></video>
             <div class="preview_section_video_overlay"></div>
         </div>
         <div class="preview_section_content">
@@ -74,7 +74,7 @@
                 <span class="overlay-info-description">{{ overlayDescription }}</span>
                 }
             </div>
-            <video #overlayVideo id="overlayVideo"></video>
+            <video #overlayVideo id="overlayVideo" playsinline></video>
         </div>
     </div>
 </main>
