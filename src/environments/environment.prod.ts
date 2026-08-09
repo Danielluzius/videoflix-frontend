@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api/',
+  apiBaseUrl: 'https://videoflix-api.danielluzius.dev/api/',
   toastDuration: 2000,
   activation: {
     successDelay: 2500,
