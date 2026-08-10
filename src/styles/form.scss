@@ -17,6 +17,27 @@
   max-width: var(--form-s-max-w);
 }
 
+.std_form.d_flex_cs_gl,
+.std_form.d_flex_cc_gl,
+.std_form_small.d_flex_cs_gl,
+.std_form_small.d_flex_cc_gl {
+  gap: 16px;
+}
+
+.std_form h1,
+.std_form_small h1 {
+  margin-bottom: 10px;
+}
+
+@media screen and (max-height: 600px) {
+  .std_form.d_flex_cs_gl,
+  .std_form.d_flex_cc_gl,
+  .std_form_small.d_flex_cs_gl,
+  .std_form_small.d_flex_cc_gl {
+    gap: 10px;
+  }
+}
+
 .form_group_w_icon_wo_label,
 .form_group_wo_icon_w_label input,
 .form_group_wo_icon_w_label textarea {
@@ -46,6 +67,13 @@ textarea {
   position: relative;
   margin-top: 16px;
 }
+
+.std_form .form_group_w_icon_wo_label,
+.std_form_small .form_group_w_icon_wo_label {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
 .password_eye {
   cursor: pointer;
 }
@@ -99,15 +127,24 @@ textarea {
 
 .form_group_w_icon_wo_label .error_label {
   position: absolute;
-  font-size: 16px;
+  font-size: 13px !important;
   bottom: 0;
-  transform: translate(0px, 100%);
-  width: calc(100%);
-  margin-top: 4px;
+  transform: translate(0, calc(100% + 4px));
+  width: 100%;
+  display: flex;
+  color: transparent;
+}
+
+.form_group_w_icon_wo_label .error_label::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .form_group_w_icon_wo_label[error="true"] .error_label {
-  display: flex;
+  color: var(--form-input-error-border-color);
 }
 
 .form_group_wo_icon_w_label .error_label {
@@ -126,10 +163,6 @@ textarea {
 }
 
 @media screen and (max-width: 768px) {
-  .form_group_w_icon_wo_label[error="true"] {
-    margin-bottom: 20px;
-    font-size: 16px;
-  }
   .form_group_checkbox .error_label {
     margin-top: 6px;
     gap: 6px;
@@ -143,9 +176,6 @@ textarea {
 }
 
 @media screen and (max-width: 480px) {
-  .form_group_w_icon_wo_label[error="true"] {
-    margin-bottom: 24px;
-  }
   .form_group_checkbox .error_label {
     gap: 4px;
     font-size: 16px !important;

@@ -5,6 +5,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -382,6 +383,7 @@
   width: 100vw !important;
   max-width: 100vw !important;
   height: 100vh !important;
+  height: 100dvh !important;
   border-radius: 0 !important;
   background: #000;
 }
@@ -402,9 +404,15 @@
 .video-wrapper:-webkit-full-screen video,
 .video-wrapper:fullscreen video {
   max-height: 100vh !important;
+  max-height: 100dvh !important;
   height: 100% !important;
   object-fit: contain;
   border-radius: 0 !important;
+}
+
+.video-wrapper.overlay-fullscreen.controls-hidden .overlay-close-btn {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @media screen and (max-width: 768px) {

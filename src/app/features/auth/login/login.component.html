@@ -21,28 +21,29 @@
             <p class="error_label">Password is required.</p>
         </div>
 
+        <div class="d_flex_cc_gm f_d_r_resp_c w_full">
+            <button type="submit" [disabled]="!emailInput.value || !passwordInput.value"
+                class="std_btn btn_prime pad_s d_flex_cc_gs f_one">Log in</button>
+            <button type="button" (click)="onGuestLogin()" [disabled]="guestLoading"
+                class="std_btn btn_prime_outline pad_s d_flex_cc_gs f_one">
+                {{ guestLoading ? 'Loading...' : 'Guest Login' }}
+            </button>
+        </div>
+
         <p id="error_login" [attr.error]="loginError ? 'true' : 'false'" class="login_error">Wrong user or password !
         </p>
 
         <div class="d_flex_cc_gl f_d_c w_full">
-            <div class="d_flex_cc_gm f_d_r_resp_c w_full">
-                <button type="submit" [disabled]="!emailInput.value || !passwordInput.value"
-                    class="std_btn btn_prime pad_s d_flex_cc_gs f_one">Log in</button>
-                <button type="button" (click)="onGuestLogin()" [disabled]="guestLoading"
-                    class="std_btn btn_prime_outline pad_s d_flex_cc_gs f_one">
-                    {{ guestLoading ? 'Loading...' : 'Guest Login' }}
-                </button>
-            </div>
             <a aria-label="forgot password page" routerLink="/auth/forgot-password" class="link link_prime fontw_bold">
                 Forgot password?
             </a>
-        </div>
-
-        <div class="d_flex_cc_gl f_d_r_resp_c w_full">
-            <p class="font_prime_color">New to Videoflix?</p>
-            <a aria-label="register page" routerLink="/auth/register" class="link link_prime d_flex_cc_gm fontw_bold">
-                Sign Up now!
-            </a>
+            <div class="d_flex_cc_gl f_d_r_resp_c w_full">
+                <p class="font_prime_color">New to Videoflix?</p>
+                <a aria-label="register page" routerLink="/auth/register"
+                    class="link link_prime d_flex_cc_gm fontw_bold">
+                    Sign Up now!
+                </a>
+            </div>
         </div>
     </form>
 </main>

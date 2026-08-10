@@ -326,6 +326,13 @@ export class VideoListComponent implements OnInit, OnDestroy {
   }
 
   private destroyOverlayPlayers(): void {
+    if ((this.plyr as any)?.fullscreen?.active) {
+      (this.plyr as any).fullscreen.exit();
+    }
+    const el = document.getElementById('overlayVideo') as any;
+    if (el?.webkitDisplayingFullscreen && el.webkitExitFullscreen) {
+      el.webkitExitFullscreen();
+    }
     this.overlayHls?.destroy();
     this.overlayHls = null;
     this.plyr?.destroy();
@@ -371,6 +378,13 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.destroyOverlayPlayers();
     el.removeAttribute('src');
     el.load();
+    el.addEventListener(
+      'webkitendfullscreen',
+      () => {
+        if (this.overlayOpen) this.closeVideoOverlay();
+      },
+      { once: true },
+    );
     this.overlayHls = this.createHlsInstance();
     this.overlayHls.loadSource(this.videoService.getHlsUrl(id));
     this.overlayHls.attachMedia(el);
