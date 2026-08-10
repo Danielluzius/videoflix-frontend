@@ -59,6 +59,10 @@
   line-height: 29px;
   color: #ffffff;
   margin: 0;
+  transition:
+    font-size 0.35s ease,
+    opacity 0.35s ease,
+    padding-left 0.35s ease;
 }
 
 .video_list ul > li {
@@ -277,6 +281,19 @@
 
 .scroll-wrapper.has-overflow-right .scroll-btn-right {
   display: flex;
+}
+
+// ── Category scroll focus ─────────────────────────────────────
+
+.list_section.has-focused-category .video_list:not(.category-in-focus) h2 {
+  font-size: 18px;
+  opacity: 0.38;
+}
+
+.video_list.category-in-focus h2 {
+  font-size: 26px;
+  padding-left: 10px;
+  border-left: 3px solid #2e3edf;
 }
 
 // On the video-list page the footer links should be right-aligned inside the

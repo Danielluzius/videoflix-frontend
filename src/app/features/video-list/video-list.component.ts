@@ -39,7 +39,6 @@ export class VideoListComponent implements OnInit, OnDestroy {
   currentVideo: number | null = null;
   overlayOpen = false;
   overlayTitle = '';
-  overlayDescription = '';
   currentThumbnailUrl = '';
   thumbnailVisible = true;
   previewVideoReady = false;
@@ -59,9 +58,16 @@ export class VideoListComponent implements OnInit, OnDestroy {
   private readonly PREVIEW_DURATION_MS = 16_000;
   private autoAdvanceStopped = false;
 
+  infoCardOpen = false;
+  infoCardTitle = '';
+  infoCardDescription = '';
+  infoCardThumbnailUrl = '';
+  private infoCardVideoId: number | null = null;
+
   private resizeObservers: ResizeObserver[] = [];
   private resizeListeners: Array<() => void> = [];
   private dragCleanups: Array<() => void> = [];
+  private focusCleanups: Array<() => void> = [];
   private initializedLists = new WeakSet<HTMLElement>();
 
   ngOnInit(): void {
@@ -84,9 +90,9 @@ export class VideoListComponent implements OnInit, OnDestroy {
       window.removeEventListener('resize', fn),
     );
     this.dragCleanups.forEach((fn) => fn());
+    this.focusCleanups.forEach((fn) => fn());
   }
 
-  /** Returns videos belonging to the given category. */
   getVideosForCategory(cat: string): Video[] {
     return this.videos.filter((v) => v.category.toLowerCase() === cat);
   }
@@ -118,7 +124,10 @@ export class VideoListComponent implements OnInit, OnDestroy {
       this.loadVideo(video.id, '480p');
       this.initScrollIndicators();
     }, 0);
-    setTimeout(() => this.initScrollIndicators(), 100);
+    setTimeout(() => {
+      this.initScrollIndicators();
+      this.initCategoryFocus();
+    }, 100);
   }
 
   private handleLoadError(): void {
@@ -126,41 +135,17 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.toast.showToastMessage(true, ['Failed to load videos']);
   }
 
-  /** Selects a video from the category list and opens the overlay. */
   showVideo(id: number): void {
     this.autoAdvanceStopped = true;
     this.currentVideo = id;
-    this.previewVisible = false;
     if (this.previewTimer) {
       clearTimeout(this.previewTimer);
       this.previewTimer = null;
     }
-    setTimeout(() => this.videoPlayerRef?.nativeElement?.pause(), 500);
-    this.openVideoOverlay(id, false);
+    this.videoPlayerRef?.nativeElement?.pause();
+    this.openInfoCard(id);
   }
 
-  /**
-   * Loads the given video into the preview section without opening the overlay.
-   * Used for the "Newest" carousel.
-   */
-  previewVideo(id: number): void {
-    this.autoAdvanceStopped = true;
-    if (this.previewTimer) {
-      clearTimeout(this.previewTimer);
-      this.previewTimer = null;
-    }
-    const video = this.videos.find((v) => v.id === id);
-    if (!video) return;
-    this.currentVideo = id;
-    this.currentThumbnailUrl = video.thumbnail_url;
-    this.thumbnailVisible = true;
-    this.videoTitle = video.title;
-    this.videoDescription = video.description;
-    this.previewVisible = true;
-    this.loadVideo(id, '480p');
-  }
-
-  /** Opens the overlay for the currently previewed video. */
   playVideo(id?: number): void {
     const target = id ?? this.currentVideo;
     if (target != null) this.openVideoOverlay(target);
@@ -296,32 +281,48 @@ export class VideoListComponent implements OnInit, OnDestroy {
 
   // ── Video overlay ─────────────────────────────────────────────────
 
-  /** Opens the video overlay for the given video ID. */
   openVideoOverlay(videoId: number, autoPlay = true): void {
     const video = this.videos.find((v) => v.id === videoId);
     if (!video) return;
     this.overlayOpen = true;
     this.overlayTitle = video.title;
-    this.overlayDescription = video.description;
     document.body.classList.add('overlay-open');
     document.body.style.overflow = 'hidden';
     this.hideHeader();
     setTimeout(() => this.loadVideoInOverlay(videoId, autoPlay), 0);
   }
 
-  /** Closes the video overlay and resumes the preview carousel. */
   closeVideoOverlay(): void {
     this.destroyOverlayPlayers();
     this.resetOverlayState();
     this.resumePreviewPlayer();
   }
 
-  /** Handles tap on the rotate hint; enters fullscreen when in landscape. */
-  onRotateHintTap(event: Event): void {
-    event.stopPropagation();
-    if (window.matchMedia('(orientation: landscape)').matches)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.plyr as any)?.fullscreen?.enter();
+  openInfoCard(id: number): void {
+    const video = this.videos.find((v) => v.id === id);
+    if (!video) return;
+    this.infoCardVideoId = id;
+    this.infoCardTitle = video.title;
+    this.infoCardDescription = video.description;
+    this.infoCardThumbnailUrl = video.thumbnail_url;
+    this.infoCardOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeInfoCard(): void {
+    this.infoCardOpen = false;
+    this.infoCardVideoId = null;
+    document.body.style.overflow = 'auto';
+    this.resumePreviewPlayer();
+  }
+
+  playFromInfoCard(): void {
+    const id = this.infoCardVideoId;
+    if (id == null) return;
+    this.infoCardOpen = false;
+    this.infoCardVideoId = null;
+    this.previewVisible = false;
+    this.openVideoOverlay(id);
   }
 
   private destroyOverlayPlayers(): void {
@@ -339,6 +340,13 @@ export class VideoListComponent implements OnInit, OnDestroy {
     document.body.classList.remove('overlay-open');
     document.body.style.overflow = 'auto';
     this.showHeader();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const doc = document as any;
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+      (doc.exitFullscreen ?? doc.webkitExitFullscreen)
+        .call(doc)
+        .catch(() => {});
+    }
   }
 
   private resumePreviewPlayer(): void {
@@ -451,7 +459,10 @@ export class VideoListComponent implements OnInit, OnDestroy {
   }
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && this.overlayOpen) this.closeVideoOverlay();
+    if (event.key === 'Escape') {
+      if (this.overlayOpen) this.closeVideoOverlay();
+      else if (this.infoCardOpen) this.closeInfoCard();
+    }
   }
 
   // ── Header hide / show ────────────────────────────────────────────
@@ -504,11 +515,6 @@ export class VideoListComponent implements OnInit, OnDestroy {
     this.dragCleanups.push(this.createDragHandlers(ul));
   }
 
-  /**
-   * Registers mouse drag-to-scroll handlers on the given list element.
-   * Returns a cleanup function that removes all added listeners.
-   * Note: exceeds 14 lines due to shared closure state across handlers.
-   */
   private createDragHandlers(ul: HTMLElement): () => void {
     let isDown = false,
       startX = 0,
@@ -565,6 +571,45 @@ export class VideoListComponent implements OnInit, OnDestroy {
       container.scrollWidth - 1;
     wrapper.classList.toggle('has-overflow-right', hasRight);
     wrapper.classList.toggle('has-overflow-left', container.scrollLeft > 1);
+  }
+
+  // ── Category scroll focus ─────────────────────────────────────────
+
+  private initCategoryFocus(): void {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('.list_section .video_list'),
+    );
+    if (!sections.length) return;
+    const listSection = document.querySelector<HTMLElement>('.list_section');
+
+    const visible = new Set<HTMLElement>();
+
+    const pick = () => {
+      // Newest is always fallback; last visible section in DOM order wins
+      let best: HTMLElement = sections[0];
+      for (const s of sections) {
+        if (visible.has(s)) best = s;
+      }
+      sections.forEach((s) =>
+        s.classList.toggle('category-in-focus', s === best),
+      );
+      listSection?.classList.toggle('has-focused-category', true);
+    };
+
+    // rootMargin -25% on bottom: section only intersects once its top crosses that line
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) visible.add(e.target as HTMLElement);
+          else visible.delete(e.target as HTMLElement);
+        });
+        pick();
+      },
+      { rootMargin: '0px 0px -25% 0px', threshold: 0 },
+    );
+
+    sections.forEach((s) => observer.observe(s));
+    this.focusCleanups.push(() => observer.disconnect());
   }
 
   // ── HLS factory ──────────────────────────────────────────────────

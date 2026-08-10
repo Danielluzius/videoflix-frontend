@@ -28,7 +28,7 @@
                     }
                     @for (video of newestVideos; track video.id) {
                     <li [class.active_thumbnail]="currentVideo === video.id">
-                        <img [src]="video.thumbnail_url" [alt]="video.title" (click)="previewVideo(video.id)">
+                        <img [src]="video.thumbnail_url" [alt]="video.title" (click)="showVideo(video.id)">
                     </li>
                     }
                 </ul>
@@ -52,10 +52,34 @@
 
     </section>
 
-    <div id="overlay" class="video-overlay" [class.open]="overlayOpen" (click)="closeVideoOverlay()">
-        <div class="rotate-hint" (click)="onRotateHintTap($event)">
-            <img src="/assets/img/rotate_device.gif" alt="" class="rotate-gif">
+    <div class="info-card-overlay" [class.open]="infoCardOpen" (click)="closeInfoCard()">
+        <div class="info-card" (click)="$event.stopPropagation()">
+            <button type="button" class="info-card-close" (click)="closeInfoCard()">
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 18 18">
+                    <path
+                        d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
+                        fill="currentColor" />
+                </svg>
+            </button>
+            <div class="info-card-backdrop">
+                <img [src]="infoCardThumbnailUrl" alt="">
+                <div class="info-card-backdrop-gradient"></div>
+                <div class="info-card-thumb-overlay">
+                    <button class="info-card-play-btn" (click)="playFromInfoCard()">
+                        <img src="/assets/icons/play_arrow.svg" alt="" width="22" height="22">
+                    </button>
+                </div>
+            </div>
+            <div class="info-card-body">
+                <span class="info-card-title">{{ infoCardTitle }}</span>
+                @if (infoCardDescription) {
+                <p class="info-card-description">{{ infoCardDescription }}</p>
+                }
+            </div>
         </div>
+    </div>
+
+    <div id="overlay" class="video-overlay" [class.open]="overlayOpen" (click)="closeVideoOverlay()">
         <div class="video-wrapper" [class.controls-hidden]="controlsHidden" [class.overlay-playing]="overlayPlaying"
             [class.overlay-fullscreen]="plyrFullscreen" (click)="$event.stopPropagation()">
             <div class="overlay-top-bar">
@@ -68,12 +92,6 @@
                             fill="currentColor" />
                     </svg>
                 </button>
-            </div>
-            <div class="overlay-info">
-                <span class="overlay-info-title">{{ overlayTitle }}</span>
-                @if (overlayDescription) {
-                <span class="overlay-info-description">{{ overlayDescription }}</span>
-                }
             </div>
             <video #overlayVideo id="overlayVideo" playsinline></video>
         </div>
