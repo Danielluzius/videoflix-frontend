@@ -29,10 +29,11 @@
 
 .main_header > a > img:nth-child(1) {
   display: none;
-  height: 32px;
+  height: 24px;
 }
 .main_header > a > img:nth-child(2) {
   display: block;
+  height: 24px;
 }
 
 @media only screen and (max-width: 768px) {
