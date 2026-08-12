@@ -415,6 +415,24 @@
   pointer-events: auto;
 }
 
+// iOS Safari pseudo-fullscreen: requestFullscreen() fails on divs, so Plyr
+// falls back to adding plyr--fullscreen-fallback (position:fixed, height:100vh)
+// on .video-wrapper. Our .plyr has height:100% which fills the wrapper, but
+// the video's max-height:70vh leaves it stuck at the top with no centering.
+.video-wrapper.plyr--fullscreen-fallback {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .plyr {
+    height: auto;
+  }
+
+  video {
+    max-height: 100dvh;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .overlay-top-title {
     font-size: 1.2rem;

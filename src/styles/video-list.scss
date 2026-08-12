@@ -210,7 +210,7 @@
   overflow-y: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
   cursor: grab;
 }
 
